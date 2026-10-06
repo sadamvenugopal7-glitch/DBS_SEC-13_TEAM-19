@@ -1,0 +1,1264 @@
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM - COMPLETE CONSOLIDATED DATABASE SCRIPT
+-- Ready for MySQL Workbench / MySQL CLI Execution
+-- Database: wines_management_db
+-- File: complete_database.sql
+-- =====================================================================
+
+-- >>> BEGIN 01_create_database.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM
+-- Database Systems Engineering Project
+-- Database: wines_management_db
+-- File: 01_create_database.sql
+-- =====================================================================
+
+DROP DATABASE IF EXISTS wines_management_db;
+
+CREATE DATABASE wines_management_db
+    CHARACTER SET utf8mb4
+    COLLATE utf8mb4_unicode_ci;
+
+USE wines_management_db;
+
+SELECT 'Database wines_management_db created successfully!' AS status;
+
+-- >>> END 01_create_database.sql <<<
+
+-- >>> BEGIN 02_create_tables.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM
+-- Database Tables DDL & Constraints
+-- Database: wines_management_db
+-- File: 02_create_tables.sql
+-- =====================================================================
+
+USE wines_management_db;
+
+-- Drop existing tables in reverse dependency order
+DROP TABLE IF EXISTS order_details;
+DROP TABLE IF EXISTS orders;
+DROP TABLE IF EXISTS inventory;
+DROP TABLE IF EXISTS wine;
+DROP TABLE IF EXISTS customer;
+DROP TABLE IF EXISTS supplier;
+
+-- -------------------------------------------------------------
+-- TABLE 1: SUPPLIER
+-- -------------------------------------------------------------
+CREATE TABLE supplier (
+    supplier_id INT PRIMARY KEY AUTO_INCREMENT,
+    supplier_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    address VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- TABLE 2: WINE
+-- -------------------------------------------------------------
+CREATE TABLE wine (
+    wine_id INT PRIMARY KEY AUTO_INCREMENT,
+    wine_name VARCHAR(100) NOT NULL,
+    category VARCHAR(50) NOT NULL,
+    price DECIMAL(10, 2) NOT NULL,
+    quantity INT DEFAULT 0,
+    supplier_id INT NOT NULL,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    CONSTRAINT chk_wine_price CHECK (price >= 0),
+    CONSTRAINT chk_wine_quantity CHECK (quantity >= 0),
+    CONSTRAINT fk_wine_supplier FOREIGN KEY (supplier_id)
+        REFERENCES supplier(supplier_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- TABLE 3: CUSTOMER
+-- -------------------------------------------------------------
+CREATE TABLE customer (
+    customer_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    email VARCHAR(100),
+    address VARCHAR(255),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- TABLE 4: ORDERS
+-- -------------------------------------------------------------
+CREATE TABLE orders (
+    order_id INT PRIMARY KEY AUTO_INCREMENT,
+    customer_id INT NOT NULL,
+    order_date DATETIME DEFAULT CURRENT_TIMESTAMP,
+    total_amount DECIMAL(12, 2) DEFAULT 0.00,
+    payment_status VARCHAR(30) DEFAULT 'Pending',
+    CONSTRAINT chk_order_total CHECK (total_amount >= 0),
+    CONSTRAINT fk_orders_customer FOREIGN KEY (customer_id)
+        REFERENCES customer(customer_id)
+        ON UPDATE CASCADE
+        ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- TABLE 5: ORDER_DETAILS
+-- -------------------------------------------------------------
+CREATE TABLE order_details (
+    order_detail_id INT PRIMARY KEY AUTO_INCREMENT,
+    order_id INT NOT NULL,
+    wine_id INT NOT NULL,
+    quantity INT NOT NULL,
+    unit_price DECIMAL(10, 2) NOT NULL,
+    subtotal DECIMAL(12, 2) GENERATED ALWAYS AS (quantity * unit_price) STORED,
+    CONSTRAINT chk_detail_quantity CHECK (quantity > 0),
+    CONSTRAINT chk_detail_unit_price CHECK (unit_price >= 0),
+    CONSTRAINT fk_details_order FOREIGN KEY (order_id)
+        REFERENCES orders(order_id)
+        ON DELETE CASCADE,
+    CONSTRAINT fk_details_wine FOREIGN KEY (wine_id)
+        REFERENCES wine(wine_id)
+        ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- TABLE 6: INVENTORY
+-- -------------------------------------------------------------
+CREATE TABLE inventory (
+    inventory_id INT PRIMARY KEY AUTO_INCREMENT,
+    wine_id INT NOT NULL UNIQUE,
+    stock_quantity INT DEFAULT 0,
+    reorder_level INT DEFAULT 10,
+    last_updated TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT chk_inv_stock CHECK (stock_quantity >= 0),
+    CONSTRAINT chk_inv_reorder CHECK (reorder_level >= 0),
+    CONSTRAINT fk_inventory_wine FOREIGN KEY (wine_id)
+        REFERENCES wine(wine_id)
+        ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- -------------------------------------------------------------
+-- PERFORMANCE INDEXES (Section 54)
+-- -------------------------------------------------------------
+CREATE INDEX idx_customer_email ON customer(email);
+CREATE INDEX idx_customer_phone ON customer(phone);
+CREATE INDEX idx_wine_name ON wine(wine_name);
+CREATE INDEX idx_wine_category ON wine(category);
+CREATE INDEX idx_wine_supplier ON wine(supplier_id);
+CREATE INDEX idx_orders_customer ON orders(customer_id);
+CREATE INDEX idx_orders_date ON orders(order_date);
+CREATE INDEX idx_order_details_order ON order_details(order_id);
+CREATE INDEX idx_order_details_wine ON order_details(wine_id);
+CREATE INDEX idx_inventory_wine ON inventory(wine_id);
+
+SELECT 'All 6 tables and performance indexes created successfully!' AS status;
+
+-- >>> END 02_create_tables.sql <<<
+
+-- >>> BEGIN 03_insert_sample_data.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM - SAMPLE DATASET
+-- 25 Suppliers, 50 Wines, 250 Customers, 50 Inventory, 100 Orders, 264 Details
+-- Database: wines_management_db
+-- File: 03_insert_sample_data.sql
+-- =====================================================================
+
+USE wines_management_db;
+
+-- 1. INSERT SUPPLIERS (25)
+INSERT INTO supplier (supplier_id, supplier_name, phone, email, address) VALUES
+(1, 'Sula Vineyards Ltd', '+91-253-2297200', 'orders@sulawines.com', 'Govardhan Village, Gangapur Dam Road, Nashik, Maharashtra'),
+(2, 'Grover Zampa Vineyards', '+91-80-27622826', 'sales@groverzampa.com', 'Raghunathapur, Doddaballapur Road, Bengaluru, Karnataka'),
+(3, 'Fratelli Wines Pvt Ltd', '+91-218-4228000', 'contact@fratelliwines.in', 'Akluj, Solapur District, Maharashtra'),
+(4, 'York Winery & Tasting Room', '+91-253-2230700', 'info@yorkwinery.com', 'Gangavarhe Village, Gangapur Dam, Nashik, Maharashtra'),
+(5, 'KRSMA Estates Vineyard', '+91-83-94240500', 'cellar@krsmaestates.com', 'Hampi Hills, Koppal District, Karnataka'),
+(6, 'Vallonne Vineyards Boutique', '+91-9769138346', 'enquiry@vallonnevineyards.com', 'Kavnai, Igatpuri, Nashik, Maharashtra'),
+(7, 'Soma Vine Village', '+91-7028065001', 'reservations@somavinevillage.com', 'Village Ganghavare, Gangapur-Savargaon Road, Nashik'),
+(8, 'Domaine Chandon India', '+91-253-3049100', 'chandonservice@chandon.co.in', 'Dindori, Nashik District, Maharashtra'),
+(9, 'Charosa Wineries Ltd', '+91-22-67097777', 'orders@charosawineries.com', 'Charosa Village, Dindori Taluka, Nashik, Maharashtra'),
+(10, 'Vintage Wines (Reveilo)', '+91-255-6258010', 'reveilo@vintagewines.co.in', 'Niphad, Nashik District, Maharashtra'),
+(11, 'Four Seasons Vineyards', '+91-211-2244200', 'cellar@fourseasonsvineyards.com', 'Rangaon, Daund Taluka, Pune District, Maharashtra'),
+(12, 'Good Earth Winery Co', '+91-253-2341200', 'sales@goodearthwinery.com', 'Vinchur Wine Park, Nashik, Maharashtra'),
+(13, 'Big Banyan Wines Ltd', '+91-80-41235678', 'contact@bigbanyanwines.com', 'Kalyanipura, Nelamangala Taluk, Bengaluru Rural'),
+(14, 'Chateau Indage Heritage', '+91-211-4237100', 'heritage@chateauindage.com', 'Narayangaon, Pune District, Maharashtra'),
+(15, 'Renaissance Winery Nashik', '+91-253-2415500', 'sales@renaissancewinery.net', 'Ozar, Nashik-Agra Highway, Maharashtra'),
+(16, 'Mokssh Vineyards India', '+91-253-6691234', 'info@moksshwines.com', 'Dindori Valley, Nashik, Maharashtra'),
+(17, 'Deccan Plateau Cellars', '+91-83-22741200', 'info@deccanplateau.in', 'Bilekallu Village, Bijapur District, Karnataka'),
+(18, 'Aarna Wine Distributors', '+91-40-23351299', 'aarnawines@distributors.com', 'Banjara Hills Road No 12, Hyderabad, Telangana'),
+(19, 'Nashik Valley Estates', '+91-253-2570088', 'sales@nashikvalley.com', 'MIDC Ambad, Nashik, Maharashtra'),
+(20, 'Heritage Grape Winery', '+91-80-22214455', 'heritage@grapewinery.in', 'Kengeri Satellite Town, Bengaluru, Karnataka'),
+(21, 'Tuscan Heritage Importers', '+91-22-40019900', 'import@tuscanheritage.com', 'Worli Seaface, Mumbai, Maharashtra'),
+(22, 'Bordeaux Selections India', '+91-11-41527788', 'contact@bordeauxselections.in', 'Connaught Place, New Delhi'),
+(23, 'Goa Portuguese Cellars', '+91-832-2431200', 'portuguesecellars@goawines.com', 'Fontainhas, Panaji, Goa'),
+(24, 'Rio Wine & Spirit Merchants', '+91-20-25661122', 'merchant@riowines.co.in', 'Shivajinagar, Pune, Maharashtra'),
+(25, 'Silver Oak Beverage Traders', '+91-44-28271100', 'silveroak@beveragetraders.com', 'Nungambakkam, Chennai, Tamil Nadu');
+
+-- 2. INSERT WINES (50)
+INSERT INTO wine (wine_id, wine_name, category, price, quantity, supplier_id, description) VALUES
+(1, 'Sula Rasa Cabernet Sauvignon', 'Red Wine', 1850.0, 45, 1, 'Complex full-bodied red aged in French oak barrels with hints of dark cocoa and berries.'),
+(2, 'Sula Dindori Reserve Shiraz', 'Red Wine', 1350.0, 60, 1, 'Lush and aromatic with aromas of crushed black pepper and ripe blackberries.'),
+(3, 'Sula Sauvignon Blanc', 'White Wine', 795.0, 80, 1, 'Crisp dry white with herbaceous notes, green peppers, and refreshing citrus.'),
+(4, 'Sula The Source Grenache Rose', 'Rose Wine', 1050.0, 8, 1, 'Bright coral blush wine with delicate aromas of citrus and fresh strawberries.'),
+(5, 'Sula Brut Tropicale Sparkling', 'Sparkling Wine', 1450.0, 40, 1, 'Method traditional sparkling rosé with refreshing fruit character.'),
+(6, 'Grover Zampa La Reserve Red', 'Red Wine', 1200.0, 55, 2, 'Iconic blend of Cabernet Sauvignon and Shiraz with chocolate and vanilla notes.'),
+(7, 'Grover Zampa Chene Grand Reserve', 'Red Wine', 2250.0, 5, 2, 'Aged for 15 months in French oak barrels; concentrated dark fruit and spice.'),
+(8, 'Grover Vijay Amritraj Reserve White', 'White Wine', 1495.0, 35, 2, 'Viognier blend with peach, honey, and floral jasmine aromas.'),
+(9, 'Grover Soiree Brut Sparkling', 'Sparkling Wine', 1350.0, 6, 2, 'Creamy texture with fine perlage and aromas of brioche and green apple.'),
+(10, 'Fratelli Sette Flagship Red', 'Red Wine', 2100.0, 40, 3, 'Super-Tuscan style blend of Sangiovese and Cabernet Franc with velvety tannins.'),
+(11, 'Fratelli MS Red Blend', 'Red Wine', 1650.0, 50, 3, 'Created with master sommelier Steven Spurrier; rich plum and cedar notes.'),
+(12, 'Fratelli Gran Cuvee Brut', 'Sparkling Wine', 1500.0, 30, 3, 'Zero dosage traditional method sparkling wine with crisp acidity.'),
+(13, 'Fratelli Sangiovese Bianco', 'White Wine', 950.0, 65, 3, 'Rare white wine vinified from red Sangiovese grapes with crisp pear aroma.'),
+(14, 'York Arros Reserve Red', 'Red Wine', 1400.0, 35, 4, 'Flagship blend of Shiraz and Cabernet Sauvignon aged in American and French oak.'),
+(15, 'York Sparkling Rose', 'Sparkling Wine', 1250.0, 7, 4, '100% Chenin Blanc & Shiraz sparkling wine made in traditional méthode champenoise.'),
+(16, 'York All-Rounder Sauvignon Blanc', 'White Wine', 750.0, 70, 4, 'Tropical fruit flavors of passionfruit, guava, and flinty minerality.'),
+(17, 'KRSMA Cabernet Sauvignon Reserve', 'Red Wine', 2400.0, 4, 5, 'Cult wine from Hampi Hills with cassis, dark plum, and tobacco complexity.'),
+(18, 'KRSMA Sangiovese Special Selection', 'Red Wine', 1800.0, 20, 5, 'Bright cherry fruit with high natural acidity and subtle sweet spices.'),
+(19, 'KRSMA Sauvignon Blanc Single Vineyard', 'White Wine', 1250.0, 30, 5, 'Flinty, elegant, and crisp with citrus peel and gooseberry accents.'),
+(20, 'Vallonne Malbec Reserve', 'Red Wine', 1650.0, 5, 6, 'India''s first single-varietal Malbec with blackberry, violet, and dark oak flavors.'),
+(21, 'Vallonne Vin de Passerillage Dessert', 'Dessert Wine', 1950.0, 3, 6, 'Naturally sweet dessert wine with dried apricot and honeyed notes.'),
+(22, 'Vallonne Rose de Cabernet', 'Rose Wine', 920.0, 40, 6, 'Dry rosé from Cabernet Sauvignon grapes with raspberry and rose petal nose.'),
+(23, 'Soma Shiraz Reserve Oak Aged', 'Red Wine', 1150.0, 45, 7, 'Smooth, medium-bodied red wine with soft tannins and red currant flavors.'),
+(24, 'Soma Chenin Blanc Sec', 'White Wine', 680.0, 75, 7, 'Off-dry white with refreshing notes of green apples, pineapple, and citrus.'),
+(25, 'Chandon Brut Vintage Method', 'Sparkling Wine', 1750.0, 50, 8, 'Classic sparkling blend of Chenin Blanc, Chardonnay, and Pinot Noir.'),
+(26, 'Chandon Rose Sparkling Pinot Noir', 'Sparkling Wine', 1900.0, 35, 8, 'Elegant salmon pink sparkler with cherry, strawberry, and brioche aromas.'),
+(27, 'Charosa Tempranillo Reserve', 'Red Wine', 1700.0, 28, 9, 'Warm coconut and vanilla bouquet paired with rich dark berry concentration.'),
+(28, 'Charosa Selections Cabernet Shiraz', 'Red Wine', 950.0, 60, 9, 'Balanced ruby red blend with ripe berries and subtle peppery spice.'),
+(29, 'Charosa Voignier White Wine', 'White Wine', 850.0, 40, 9, 'Exotic aromatics of apricot, honeysuckle, and almond flower.'),
+(30, 'Reveilo Reserve Syrah Oak Aged', 'Red Wine', 1550.0, 22, 10, 'Aged in French oak for 12 months; powerful red berry fruit and peppery finish.'),
+(31, 'Reveilo Nero d Avola Reserve', 'Red Wine', 1450.0, 26, 10, 'Unique Sicilian grape grown in Nashik with sweet cherries and balsamic notes.'),
+(32, 'Reveilo Grillo Estate White', 'White Wine', 820.0, 50, 10, 'Fresh Mediterranean varietal with citrus blossom and crisp acidity.'),
+(33, 'Four Seasons Barrique Reserve Shiraz', 'Red Wine', 1300.0, 38, 11, 'Aged in new oak barrels; full-bodied with notes of ripe plums and dark chocolate.'),
+(34, 'Four Seasons Viognier Barrel Select', 'White Wine', 900.0, 42, 11, 'Aromatic white offering peach, lychee, and fresh floral notes.'),
+(35, 'Good Earth Basso Cabernet', 'Red Wine', 1100.0, 30, 12, 'Earthy and savoury Cabernet Sauvignon with structured tannins.'),
+(36, 'Good Earth Antaraa Shiraz Cabernet', 'Red Wine', 980.0, 35, 12, 'Harmonious blend with soft tannins and red plum flavors.'),
+(37, 'Big Banyan Merlot Reserve', 'Red Wine', 990.0, 55, 13, 'Plush and round red with sweet red fruit, cocoa, and gentle vanilla oak.'),
+(38, 'Big Banyan Chardonnay Dry White', 'White Wine', 890.0, 48, 13, 'Lightly wooded white with green apple, butterscotch, and citrus finish.'),
+(39, 'Big Banyan Bellissima Late Harvest', 'Dessert Wine', 1250.0, 6, 13, 'Luscious sweet wine made from late-harvest Muscat grapes.'),
+(40, 'Chateau Indage Chantilli Cabernet', 'Red Wine', 780.0, 65, 14, 'Historic Indian table wine with soft red fruit and easy-drinking style.'),
+(41, 'Chateau Indage Marquise de Pompadour', 'Sparkling Wine', 1200.0, 32, 14, 'Crisp sparkling wine with delicate bubbles and citrus peel notes.'),
+(42, 'Renaissance Pinot Noir Estate', 'Red Wine', 1150.0, 28, 15, 'Light-bodied ruby red with cranberry, cherry, and forest floor complexity.'),
+(43, 'Mokssh Sauvignon Blanc Classic', 'White Wine', 720.0, 60, 16, 'Fresh grassy bouquet with grapefruit, lime, and mineral backbone.'),
+(44, 'Deccan Plateau Heritage Port Wine', 'Fortified Wine', 550.0, 90, 17, 'Sweet fortified wine with rich caramel, raisin, and dried fruit flavors.'),
+(45, 'Aarna Royal Shiraz Reserve', 'Red Wine', 1250.0, 40, 18, 'Robust Deccan Shiraz with spiced blackberry and toasted oak aromas.'),
+(46, 'Nashik Valley Zinfandel Rose', 'Rose Wine', 760.0, 52, 19, 'Semi-sweet refreshing rosé with bright strawberry and watermelon flavors.'),
+(47, 'Heritage Amber Sweet Dessert', 'Dessert Wine', 690.0, 35, 20, 'Golden amber dessert wine with candied orange peel and floral honey.'),
+(48, 'Chianti Classico DOCG Riserva', 'Red Wine', 3800.0, 2, 21, 'Imported Italian Tuscan red with tart cherry, leather, and dried oregano.'),
+(49, 'Bordeaux Medoc Chateau Blend', 'Red Wine', 4200.0, 3, 22, 'Classic French Left Bank Cabernet-Merlot with cassis and graphite notes.'),
+(50, 'Goa Portuguese Royal Fortified Port', 'Fortified Wine', 620.0, 85, 23, 'Traditional Goan fortified wine with sweet raisin and warm spice notes.');
+
+-- 3. INSERT CUSTOMERS (250)
+INSERT INTO customer (customer_id, customer_name, phone, email, address) VALUES
+(1, 'Aarav Joshi', '+91-9895822412', 'aarav.joshi1@samplemail.com', 'Flat 126, Indiranagar, Bengaluru'),
+(2, 'Vivaan Kapoor', '+91-9846913810', 'vivaan.kapoor2@samplemail.com', 'Flat 329, Juhu, Mumbai'),
+(3, 'Aditya Bansal', '+91-9828728463', 'aditya.bansal3@samplemail.com', 'Flat 793, Defense Colony, New Delhi'),
+(4, 'Vihaan Prasad', '+91-9883197857', 'vihaan.prasad4@samplemail.com', 'Flat 705, Koregaon Park, Pune'),
+(5, 'Arjun Shinde', '+91-9866629388', 'arjun.shinde5@samplemail.com', 'Flat 131, Adyar, Chennai'),
+(6, 'Sai Yadav', '+91-9822575562', 'sai.yadav6@samplemail.com', 'Flat 339, Ballygunge, Kolkata'),
+(7, 'Reyansh Bose', '+91-9877827638', 'reyansh.bose7@samplemail.com', 'Flat 675, Panaji, Goa'),
+(8, 'Ayaan Nair', '+91-9836687537', 'ayaan.nair8@samplemail.com', 'Flat 326, Indira Nagar, Nashik'),
+(9, 'Krishna Rao', '+91-9870291817', 'krishna.rao9@samplemail.com', 'Flat 107, Sector 35, Chandigarh'),
+(10, 'Ishaan Choudhary', '+91-9831429110', 'ishaan.choudhary10@samplemail.com', 'Flat 449, Gachibowli, Hyderabad'),
+(11, 'Shaurya Mukherjee', '+91-9847295260', 'shaurya.mukherjee11@samplemail.com', 'Flat 321, Koramangala, Bengaluru'),
+(12, 'Atharv Hegde', '+91-9855176955', 'atharv.hegde12@samplemail.com', 'Flat 195, Bandra West, Mumbai'),
+(13, 'Advik Merchant', '+91-9860992979', 'advik.merchant13@samplemail.com', 'Flat 468, Defense Colony, New Delhi'),
+(14, 'Pranav Shukla', '+91-9856164955', 'pranav.shukla14@samplemail.com', 'Flat 145, Kalyani Nagar, Pune'),
+(15, 'Kabir Iyer', '+91-9871662963', 'kabir.iyer15@samplemail.com', 'Flat 228, Boat Club, Chennai'),
+(16, 'Ananya Tiwari', '+91-9860806024', 'ananya.tiwari16@samplemail.com', 'Flat 666, Salt Lake, Kolkata'),
+(17, 'Diya Sundaram', '+91-9849349722', 'diya.sundaram17@samplemail.com', 'Flat 692, Calangute, Goa'),
+(18, 'Ira Singhania', '+91-9835808537', 'ira.singhania18@samplemail.com', 'Flat 147, Gangapur Road, Nashik'),
+(19, 'Myra Ghosh', '+91-9898753260', 'myra.ghosh19@samplemail.com', 'Flat 892, Sector 17, Chandigarh'),
+(20, 'Saanvi Iyer', '+91-9848840994', 'saanvi.iyer20@samplemail.com', 'Flat 339, Banjara Hills, Hyderabad'),
+(21, 'Aanya Tripathi', '+91-9823556182', 'aanya.tripathi21@samplemail.com', 'Flat 385, Whitefield, Bengaluru'),
+(22, 'Pari Kumar', '+91-9870855700', 'pari.kumar22@samplemail.com', 'Flat 267, Colaba, Mumbai'),
+(23, 'Riya Agarwal', '+91-9859684848', 'riya.agarwal23@samplemail.com', 'Flat 315, Connaught Place, New Delhi'),
+(24, 'Aadhya Pillai', '+91-9899949389', 'aadhya.pillai24@samplemail.com', 'Flat 819, Kalyani Nagar, Pune'),
+(25, 'Kiara Menon', '+91-9896977837', 'kiara.menon25@samplemail.com', 'Flat 724, Adyar, Chennai'),
+(26, 'Sneha Deshpande', '+91-9895225343', 'sneha.deshpande26@samplemail.com', 'Flat 647, Ballygunge, Kolkata'),
+(27, 'Pooja Somani', '+91-9842857966', 'pooja.somani27@samplemail.com', 'Flat 574, Candolim, Goa'),
+(28, 'Priya Pandey', '+91-9860929647', 'priya.pandey28@samplemail.com', 'Flat 756, Mahatma Nagar, Nashik'),
+(29, 'Neha Patel', '+91-9884752529', 'neha.patel29@samplemail.com', 'Flat 802, Sector 17, Chandigarh'),
+(30, 'Kavita Swaminathan', '+91-9853524491', 'kavita.swaminathan30@samplemail.com', 'Flat 335, Banjara Hills, Hyderabad'),
+(31, 'Rajesh Bhatt', '+91-9814308421', 'rajesh.bhatt31@samplemail.com', 'Flat 511, HSR Layout, Bengaluru'),
+(32, 'Amit Singhal', '+91-9845935572', 'amit.singhal32@samplemail.com', 'Flat 317, Bandra West, Mumbai'),
+(33, 'Vikram Ahluwalia', '+91-9886125617', 'vikram.ahluwalia33@samplemail.com', 'Flat 318, Connaught Place, New Delhi'),
+(34, 'Rohit Singh', '+91-9897971488', 'rohit.singh34@samplemail.com', 'Flat 506, Viman Nagar, Pune'),
+(35, 'Suresh Mishra', '+91-9896282117', 'suresh.mishra35@samplemail.com', 'Flat 247, Besant Nagar, Chennai'),
+(36, 'Manoj Reddy', '+91-9845551614', 'manoj.reddy36@samplemail.com', 'Flat 353, Ballygunge, Kolkata'),
+(37, 'Harish Deshmukh', '+91-9885345555', 'harish.deshmukh37@samplemail.com', 'Flat 865, Calangute, Goa'),
+(38, 'Arvind Nambiar', '+91-9888461803', 'arvind.nambiar38@samplemail.com', 'Flat 698, Indira Nagar, Nashik'),
+(39, 'Naveen Kulkarni', '+91-9863606628', 'naveen.kulkarni39@samplemail.com', 'Flat 325, Sector 35, Chandigarh'),
+(40, 'Gaurav Qureshi', '+91-9828566572', 'gaurav.qureshi40@samplemail.com', 'Flat 606, Kondapur, Hyderabad'),
+(41, 'Deepa Gopinath', '+91-9822201654', 'deepa.gopinath41@samplemail.com', 'Flat 213, Indiranagar, Bengaluru'),
+(42, 'Sunita Dubey', '+91-9830514014', 'sunita.dubey42@samplemail.com', 'Flat 797, Juhu, Mumbai'),
+(43, 'Ritu Verma', '+91-9866661351', 'ritu.verma43@samplemail.com', 'Flat 495, Defense Colony, New Delhi'),
+(44, 'Divya Mehta', '+91-9861220073', 'divya.mehta44@samplemail.com', 'Flat 642, Viman Nagar, Pune'),
+(45, 'Tanvi Sengupta', '+91-9843744231', 'tanvi.sengupta45@samplemail.com', 'Flat 112, Boat Club, Chennai'),
+(46, 'Shalini Saxena', '+91-9825374874', 'shalini.saxena46@samplemail.com', 'Flat 869, New Town, Kolkata'),
+(47, 'Prerna Chawla', '+91-9845812670', 'prerna.chawla47@samplemail.com', 'Flat 215, Calangute, Goa'),
+(48, 'Bhavna Srinivasan', '+91-9849392920', 'bhavna.srinivasan48@samplemail.com', 'Flat 262, Indira Nagar, Nashik'),
+(49, 'Swati Khan', '+91-9870897765', 'swati.khan49@samplemail.com', 'Flat 840, Sector 9, Chandigarh'),
+(50, 'Nandini Sharma', '+91-9845351479', 'nandini.sharma50@samplemail.com', 'Flat 881, Kondapur, Hyderabad'),
+(51, 'Aarav Joshi', '+91-9833978249', 'aarav.joshi51@samplemail.com', 'Flat 209, Jayanagar, Bengaluru'),
+(52, 'Vivaan Kapoor', '+91-9893926371', 'vivaan.kapoor52@samplemail.com', 'Flat 755, Colaba, Mumbai'),
+(53, 'Aditya Bansal', '+91-9878137358', 'aditya.bansal53@samplemail.com', 'Flat 257, Greater Kailash, New Delhi'),
+(54, 'Vihaan Prasad', '+91-9860185867', 'vihaan.prasad54@samplemail.com', 'Flat 653, Kothrud, Pune'),
+(55, 'Arjun Shinde', '+91-9881182864', 'arjun.shinde55@samplemail.com', 'Flat 714, Adyar, Chennai'),
+(56, 'Sai Yadav', '+91-9853507489', 'sai.yadav56@samplemail.com', 'Flat 120, Alipore, Kolkata'),
+(57, 'Reyansh Bose', '+91-9825014631', 'reyansh.bose57@samplemail.com', 'Flat 415, Calangute, Goa'),
+(58, 'Ayaan Nair', '+91-9842138745', 'ayaan.nair58@samplemail.com', 'Flat 347, Gangapur Road, Nashik'),
+(59, 'Krishna Rao', '+91-9886149359', 'krishna.rao59@samplemail.com', 'Flat 188, Sector 9, Chandigarh'),
+(60, 'Ishaan Choudhary', '+91-9875228535', 'ishaan.choudhary60@samplemail.com', 'Flat 879, Banjara Hills, Hyderabad'),
+(61, 'Shaurya Mukherjee', '+91-9881498611', 'shaurya.mukherjee61@samplemail.com', 'Flat 232, Koramangala, Bengaluru'),
+(62, 'Atharv Hegde', '+91-9898550256', 'atharv.hegde62@samplemail.com', 'Flat 663, Worli, Mumbai'),
+(63, 'Advik Merchant', '+91-9832162965', 'advik.merchant63@samplemail.com', 'Flat 641, Connaught Place, New Delhi'),
+(64, 'Pranav Shukla', '+91-9891415657', 'pranav.shukla64@samplemail.com', 'Flat 317, Viman Nagar, Pune'),
+(65, 'Kabir Iyer', '+91-9882383095', 'kabir.iyer65@samplemail.com', 'Flat 831, Mylapore, Chennai'),
+(66, 'Ananya Tiwari', '+91-9851837852', 'ananya.tiwari66@samplemail.com', 'Flat 788, Alipore, Kolkata'),
+(67, 'Diya Sundaram', '+91-9897225156', 'diya.sundaram67@samplemail.com', 'Flat 549, Calangute, Goa'),
+(68, 'Ira Singhania', '+91-9879467853', 'ira.singhania68@samplemail.com', 'Flat 224, Indira Nagar, Nashik'),
+(69, 'Myra Ghosh', '+91-9843273328', 'myra.ghosh69@samplemail.com', 'Flat 166, Sector 17, Chandigarh'),
+(70, 'Saanvi Iyer', '+91-9855377076', 'saanvi.iyer70@samplemail.com', 'Flat 703, Banjara Hills, Hyderabad'),
+(71, 'Aanya Tripathi', '+91-9884346088', 'aanya.tripathi71@samplemail.com', 'Flat 703, Koramangala, Bengaluru'),
+(72, 'Pari Kumar', '+91-9839557077', 'pari.kumar72@samplemail.com', 'Flat 173, Bandra West, Mumbai'),
+(73, 'Riya Agarwal', '+91-9894705205', 'riya.agarwal73@samplemail.com', 'Flat 335, Defense Colony, New Delhi'),
+(74, 'Aadhya Pillai', '+91-9819046318', 'aadhya.pillai74@samplemail.com', 'Flat 439, Koregaon Park, Pune'),
+(75, 'Kiara Menon', '+91-9819510312', 'kiara.menon75@samplemail.com', 'Flat 344, Boat Club, Chennai'),
+(76, 'Sneha Deshpande', '+91-9847376585', 'sneha.deshpande76@samplemail.com', 'Flat 320, Alipore, Kolkata'),
+(77, 'Pooja Somani', '+91-9882374753', 'pooja.somani77@samplemail.com', 'Flat 841, Candolim, Goa'),
+(78, 'Priya Pandey', '+91-9886644106', 'priya.pandey78@samplemail.com', 'Flat 349, Indira Nagar, Nashik'),
+(79, 'Neha Patel', '+91-9873481353', 'neha.patel79@samplemail.com', 'Flat 295, Sector 8, Chandigarh'),
+(80, 'Kavita Swaminathan', '+91-9822660194', 'kavita.swaminathan80@samplemail.com', 'Flat 775, Banjara Hills, Hyderabad'),
+(81, 'Rajesh Bhatt', '+91-9867854710', 'rajesh.bhatt81@samplemail.com', 'Flat 534, HSR Layout, Bengaluru'),
+(82, 'Amit Singhal', '+91-9865177213', 'amit.singhal82@samplemail.com', 'Flat 847, Worli, Mumbai'),
+(83, 'Vikram Ahluwalia', '+91-9817270733', 'vikram.ahluwalia83@samplemail.com', 'Flat 163, Defense Colony, New Delhi'),
+(84, 'Rohit Singh', '+91-9864038913', 'rohit.singh84@samplemail.com', 'Flat 212, Kalyani Nagar, Pune'),
+(85, 'Suresh Mishra', '+91-9843374088', 'suresh.mishra85@samplemail.com', 'Flat 295, Mylapore, Chennai'),
+(86, 'Manoj Reddy', '+91-9881979055', 'manoj.reddy86@samplemail.com', 'Flat 244, Alipore, Kolkata'),
+(87, 'Harish Deshmukh', '+91-9866623995', 'harish.deshmukh87@samplemail.com', 'Flat 386, Candolim, Goa'),
+(88, 'Arvind Nambiar', '+91-9872092888', 'arvind.nambiar88@samplemail.com', 'Flat 178, College Road, Nashik'),
+(89, 'Naveen Kulkarni', '+91-9869476001', 'naveen.kulkarni89@samplemail.com', 'Flat 152, Sector 9, Chandigarh'),
+(90, 'Gaurav Qureshi', '+91-9897529405', 'gaurav.qureshi90@samplemail.com', 'Flat 116, Kondapur, Hyderabad'),
+(91, 'Deepa Gopinath', '+91-9822517517', 'deepa.gopinath91@samplemail.com', 'Flat 271, Koramangala, Bengaluru'),
+(92, 'Sunita Dubey', '+91-9864547971', 'sunita.dubey92@samplemail.com', 'Flat 593, Worli, Mumbai'),
+(93, 'Ritu Verma', '+91-9838688676', 'ritu.verma93@samplemail.com', 'Flat 161, Vasant Kunj, New Delhi'),
+(94, 'Divya Mehta', '+91-9832097220', 'divya.mehta94@samplemail.com', 'Flat 103, Viman Nagar, Pune'),
+(95, 'Tanvi Sengupta', '+91-9862401521', 'tanvi.sengupta95@samplemail.com', 'Flat 903, Alwarpet, Chennai'),
+(96, 'Shalini Saxena', '+91-9871070189', 'shalini.saxena96@samplemail.com', 'Flat 534, Park Street, Kolkata'),
+(97, 'Prerna Chawla', '+91-9884593961', 'prerna.chawla97@samplemail.com', 'Flat 259, Margao, Goa'),
+(98, 'Bhavna Srinivasan', '+91-9835487660', 'bhavna.srinivasan98@samplemail.com', 'Flat 323, Mahatma Nagar, Nashik'),
+(99, 'Swati Khan', '+91-9817849494', 'swati.khan99@samplemail.com', 'Flat 866, Sector 9, Chandigarh'),
+(100, 'Nandini Sharma', '+91-9852091325', 'nandini.sharma100@samplemail.com', 'Flat 152, Banjara Hills, Hyderabad'),
+(101, 'Aarav Joshi', '+91-9888406989', 'aarav.joshi101@samplemail.com', 'Flat 615, Whitefield, Bengaluru'),
+(102, 'Vivaan Kapoor', '+91-9881286543', 'vivaan.kapoor102@samplemail.com', 'Flat 159, Juhu, Mumbai'),
+(103, 'Aditya Bansal', '+91-9878159587', 'aditya.bansal103@samplemail.com', 'Flat 291, Defense Colony, New Delhi'),
+(104, 'Vihaan Prasad', '+91-9819196777', 'vihaan.prasad104@samplemail.com', 'Flat 792, Koregaon Park, Pune'),
+(105, 'Arjun Shinde', '+91-9841568532', 'arjun.shinde105@samplemail.com', 'Flat 223, Besant Nagar, Chennai'),
+(106, 'Sai Yadav', '+91-9886460539', 'sai.yadav106@samplemail.com', 'Flat 693, Ballygunge, Kolkata'),
+(107, 'Reyansh Bose', '+91-9889795010', 'reyansh.bose107@samplemail.com', 'Flat 735, Panaji, Goa'),
+(108, 'Ayaan Nair', '+91-9821003626', 'ayaan.nair108@samplemail.com', 'Flat 774, Indira Nagar, Nashik'),
+(109, 'Krishna Rao', '+91-9888339168', 'krishna.rao109@samplemail.com', 'Flat 368, Sector 35, Chandigarh'),
+(110, 'Ishaan Choudhary', '+91-9837415205', 'ishaan.choudhary110@samplemail.com', 'Flat 345, Madhapur, Hyderabad'),
+(111, 'Shaurya Mukherjee', '+91-9845650176', 'shaurya.mukherjee111@samplemail.com', 'Flat 235, Whitefield, Bengaluru'),
+(112, 'Atharv Hegde', '+91-9896637649', 'atharv.hegde112@samplemail.com', 'Flat 569, Colaba, Mumbai'),
+(113, 'Advik Merchant', '+91-9852436584', 'advik.merchant113@samplemail.com', 'Flat 110, Defense Colony, New Delhi'),
+(114, 'Pranav Shukla', '+91-9871510041', 'pranav.shukla114@samplemail.com', 'Flat 176, Koregaon Park, Pune'),
+(115, 'Kabir Iyer', '+91-9882160068', 'kabir.iyer115@samplemail.com', 'Flat 619, Mylapore, Chennai'),
+(116, 'Ananya Tiwari', '+91-9845594597', 'ananya.tiwari116@samplemail.com', 'Flat 458, Ballygunge, Kolkata'),
+(117, 'Diya Sundaram', '+91-9819233013', 'diya.sundaram117@samplemail.com', 'Flat 479, Candolim, Goa'),
+(118, 'Ira Singhania', '+91-9848250360', 'ira.singhania118@samplemail.com', 'Flat 549, College Road, Nashik'),
+(119, 'Myra Ghosh', '+91-9882909480', 'myra.ghosh119@samplemail.com', 'Flat 727, Sector 35, Chandigarh'),
+(120, 'Saanvi Iyer', '+91-9897775215', 'saanvi.iyer120@samplemail.com', 'Flat 109, Kondapur, Hyderabad'),
+(121, 'Aanya Tripathi', '+91-9899639081', 'aanya.tripathi121@samplemail.com', 'Flat 407, Jayanagar, Bengaluru'),
+(122, 'Pari Kumar', '+91-9899038526', 'pari.kumar122@samplemail.com', 'Flat 238, Bandra West, Mumbai'),
+(123, 'Riya Agarwal', '+91-9845496015', 'riya.agarwal123@samplemail.com', 'Flat 210, Defense Colony, New Delhi'),
+(124, 'Aadhya Pillai', '+91-9884252420', 'aadhya.pillai124@samplemail.com', 'Flat 379, Kothrud, Pune'),
+(125, 'Kiara Menon', '+91-9847816686', 'kiara.menon125@samplemail.com', 'Flat 316, Boat Club, Chennai'),
+(126, 'Sneha Deshpande', '+91-9856020613', 'sneha.deshpande126@samplemail.com', 'Flat 804, Ballygunge, Kolkata'),
+(127, 'Pooja Somani', '+91-9895125977', 'pooja.somani127@samplemail.com', 'Flat 618, Calangute, Goa'),
+(128, 'Priya Pandey', '+91-9875569635', 'priya.pandey128@samplemail.com', 'Flat 153, Mahatma Nagar, Nashik'),
+(129, 'Neha Patel', '+91-9822388090', 'neha.patel129@samplemail.com', 'Flat 384, Sector 8, Chandigarh'),
+(130, 'Kavita Swaminathan', '+91-9815917225', 'kavita.swaminathan130@samplemail.com', 'Flat 442, Banjara Hills, Hyderabad'),
+(131, 'Rajesh Bhatt', '+91-9827558317', 'rajesh.bhatt131@samplemail.com', 'Flat 266, HSR Layout, Bengaluru'),
+(132, 'Amit Singhal', '+91-9869302158', 'amit.singhal132@samplemail.com', 'Flat 823, Powai, Mumbai'),
+(133, 'Vikram Ahluwalia', '+91-9867403166', 'vikram.ahluwalia133@samplemail.com', 'Flat 215, Defense Colony, New Delhi'),
+(134, 'Rohit Singh', '+91-9820099059', 'rohit.singh134@samplemail.com', 'Flat 659, Kothrud, Pune'),
+(135, 'Suresh Mishra', '+91-9814835614', 'suresh.mishra135@samplemail.com', 'Flat 697, Alwarpet, Chennai'),
+(136, 'Manoj Reddy', '+91-9884158663', 'manoj.reddy136@samplemail.com', 'Flat 541, Ballygunge, Kolkata'),
+(137, 'Harish Deshmukh', '+91-9827105448', 'harish.deshmukh137@samplemail.com', 'Flat 416, Panaji, Goa'),
+(138, 'Arvind Nambiar', '+91-9858942697', 'arvind.nambiar138@samplemail.com', 'Flat 467, Gangapur Road, Nashik'),
+(139, 'Naveen Kulkarni', '+91-9838195995', 'naveen.kulkarni139@samplemail.com', 'Flat 783, Sector 17, Chandigarh'),
+(140, 'Gaurav Qureshi', '+91-9823796726', 'gaurav.qureshi140@samplemail.com', 'Flat 899, Madhapur, Hyderabad'),
+(141, 'Deepa Gopinath', '+91-9885146293', 'deepa.gopinath141@samplemail.com', 'Flat 736, Whitefield, Bengaluru'),
+(142, 'Sunita Dubey', '+91-9830743797', 'sunita.dubey142@samplemail.com', 'Flat 267, Juhu, Mumbai'),
+(143, 'Ritu Verma', '+91-9833763566', 'ritu.verma143@samplemail.com', 'Flat 126, Vasant Kunj, New Delhi'),
+(144, 'Divya Mehta', '+91-9834073380', 'divya.mehta144@samplemail.com', 'Flat 902, Kalyani Nagar, Pune'),
+(145, 'Tanvi Sengupta', '+91-9865259205', 'tanvi.sengupta145@samplemail.com', 'Flat 374, Mylapore, Chennai'),
+(146, 'Shalini Saxena', '+91-9831367172', 'shalini.saxena146@samplemail.com', 'Flat 492, Salt Lake, Kolkata'),
+(147, 'Prerna Chawla', '+91-9815197528', 'prerna.chawla147@samplemail.com', 'Flat 328, Margao, Goa'),
+(148, 'Bhavna Srinivasan', '+91-9836786211', 'bhavna.srinivasan148@samplemail.com', 'Flat 459, Indira Nagar, Nashik'),
+(149, 'Swati Khan', '+91-9850962024', 'swati.khan149@samplemail.com', 'Flat 329, Sector 17, Chandigarh'),
+(150, 'Nandini Sharma', '+91-9813176186', 'nandini.sharma150@samplemail.com', 'Flat 509, Jubilee Hills, Hyderabad'),
+(151, 'Aarav Joshi', '+91-9854058573', 'aarav.joshi151@samplemail.com', 'Flat 172, HSR Layout, Bengaluru'),
+(152, 'Vivaan Kapoor', '+91-9847463522', 'vivaan.kapoor152@samplemail.com', 'Flat 757, Colaba, Mumbai'),
+(153, 'Aditya Bansal', '+91-9878371272', 'aditya.bansal153@samplemail.com', 'Flat 796, Vasant Kunj, New Delhi'),
+(154, 'Vihaan Prasad', '+91-9881969657', 'vihaan.prasad154@samplemail.com', 'Flat 129, Kalyani Nagar, Pune'),
+(155, 'Arjun Shinde', '+91-9825480907', 'arjun.shinde155@samplemail.com', 'Flat 283, Alwarpet, Chennai'),
+(156, 'Sai Yadav', '+91-9887925434', 'sai.yadav156@samplemail.com', 'Flat 140, Park Street, Kolkata'),
+(157, 'Reyansh Bose', '+91-9824549543', 'reyansh.bose157@samplemail.com', 'Flat 454, Margao, Goa'),
+(158, 'Ayaan Nair', '+91-9852101056', 'ayaan.nair158@samplemail.com', 'Flat 721, Indira Nagar, Nashik'),
+(159, 'Krishna Rao', '+91-9878642041', 'krishna.rao159@samplemail.com', 'Flat 495, Sector 9, Chandigarh'),
+(160, 'Ishaan Choudhary', '+91-9887388337', 'ishaan.choudhary160@samplemail.com', 'Flat 361, Jubilee Hills, Hyderabad'),
+(161, 'Shaurya Mukherjee', '+91-9815957459', 'shaurya.mukherjee161@samplemail.com', 'Flat 102, Whitefield, Bengaluru'),
+(162, 'Atharv Hegde', '+91-9879782527', 'atharv.hegde162@samplemail.com', 'Flat 804, Powai, Mumbai'),
+(163, 'Advik Merchant', '+91-9836445607', 'advik.merchant163@samplemail.com', 'Flat 542, Connaught Place, New Delhi'),
+(164, 'Pranav Shukla', '+91-9819391725', 'pranav.shukla164@samplemail.com', 'Flat 739, Kalyani Nagar, Pune'),
+(165, 'Kabir Iyer', '+91-9852133044', 'kabir.iyer165@samplemail.com', 'Flat 838, Adyar, Chennai'),
+(166, 'Ananya Tiwari', '+91-9850308572', 'ananya.tiwari166@samplemail.com', 'Flat 417, New Town, Kolkata'),
+(167, 'Diya Sundaram', '+91-9899508850', 'diya.sundaram167@samplemail.com', 'Flat 435, Margao, Goa'),
+(168, 'Ira Singhania', '+91-9864009265', 'ira.singhania168@samplemail.com', 'Flat 668, Mahatma Nagar, Nashik'),
+(169, 'Myra Ghosh', '+91-9827084279', 'myra.ghosh169@samplemail.com', 'Flat 531, Sector 17, Chandigarh'),
+(170, 'Saanvi Iyer', '+91-9899245317', 'saanvi.iyer170@samplemail.com', 'Flat 794, Gachibowli, Hyderabad'),
+(171, 'Aanya Tripathi', '+91-9833357554', 'aanya.tripathi171@samplemail.com', 'Flat 683, Jayanagar, Bengaluru'),
+(172, 'Pari Kumar', '+91-9850392808', 'pari.kumar172@samplemail.com', 'Flat 662, Worli, Mumbai'),
+(173, 'Riya Agarwal', '+91-9810054484', 'riya.agarwal173@samplemail.com', 'Flat 394, Connaught Place, New Delhi'),
+(174, 'Aadhya Pillai', '+91-9838210242', 'aadhya.pillai174@samplemail.com', 'Flat 905, Viman Nagar, Pune'),
+(175, 'Kiara Menon', '+91-9887844239', 'kiara.menon175@samplemail.com', 'Flat 771, Boat Club, Chennai'),
+(176, 'Sneha Deshpande', '+91-9853251559', 'sneha.deshpande176@samplemail.com', 'Flat 553, Alipore, Kolkata'),
+(177, 'Pooja Somani', '+91-9869345683', 'pooja.somani177@samplemail.com', 'Flat 624, Candolim, Goa'),
+(178, 'Priya Pandey', '+91-9873509974', 'priya.pandey178@samplemail.com', 'Flat 775, College Road, Nashik'),
+(179, 'Neha Patel', '+91-9821381064', 'neha.patel179@samplemail.com', 'Flat 628, Sector 35, Chandigarh'),
+(180, 'Kavita Swaminathan', '+91-9899100953', 'kavita.swaminathan180@samplemail.com', 'Flat 444, Kondapur, Hyderabad'),
+(181, 'Rajesh Bhatt', '+91-9822534217', 'rajesh.bhatt181@samplemail.com', 'Flat 789, Koramangala, Bengaluru'),
+(182, 'Amit Singhal', '+91-9851663795', 'amit.singhal182@samplemail.com', 'Flat 304, Juhu, Mumbai'),
+(183, 'Vikram Ahluwalia', '+91-9829777514', 'vikram.ahluwalia183@samplemail.com', 'Flat 148, Defense Colony, New Delhi'),
+(184, 'Rohit Singh', '+91-9842862209', 'rohit.singh184@samplemail.com', 'Flat 726, Viman Nagar, Pune'),
+(185, 'Suresh Mishra', '+91-9819774839', 'suresh.mishra185@samplemail.com', 'Flat 525, Besant Nagar, Chennai'),
+(186, 'Manoj Reddy', '+91-9894525678', 'manoj.reddy186@samplemail.com', 'Flat 300, New Town, Kolkata'),
+(187, 'Harish Deshmukh', '+91-9861536717', 'harish.deshmukh187@samplemail.com', 'Flat 510, Margao, Goa'),
+(188, 'Arvind Nambiar', '+91-9842747037', 'arvind.nambiar188@samplemail.com', 'Flat 772, College Road, Nashik'),
+(189, 'Naveen Kulkarni', '+91-9810744212', 'naveen.kulkarni189@samplemail.com', 'Flat 898, Sector 9, Chandigarh'),
+(190, 'Gaurav Qureshi', '+91-9867062156', 'gaurav.qureshi190@samplemail.com', 'Flat 281, Jubilee Hills, Hyderabad'),
+(191, 'Deepa Gopinath', '+91-9879519112', 'deepa.gopinath191@samplemail.com', 'Flat 152, Whitefield, Bengaluru'),
+(192, 'Sunita Dubey', '+91-9884813739', 'sunita.dubey192@samplemail.com', 'Flat 225, Juhu, Mumbai'),
+(193, 'Ritu Verma', '+91-9871265269', 'ritu.verma193@samplemail.com', 'Flat 576, Greater Kailash, New Delhi'),
+(194, 'Divya Mehta', '+91-9899600766', 'divya.mehta194@samplemail.com', 'Flat 874, Kalyani Nagar, Pune'),
+(195, 'Tanvi Sengupta', '+91-9869401199', 'tanvi.sengupta195@samplemail.com', 'Flat 837, Boat Club, Chennai'),
+(196, 'Shalini Saxena', '+91-9877750178', 'shalini.saxena196@samplemail.com', 'Flat 662, Alipore, Kolkata'),
+(197, 'Prerna Chawla', '+91-9869849511', 'prerna.chawla197@samplemail.com', 'Flat 862, Candolim, Goa'),
+(198, 'Bhavna Srinivasan', '+91-9873709724', 'bhavna.srinivasan198@samplemail.com', 'Flat 366, Indira Nagar, Nashik'),
+(199, 'Swati Khan', '+91-9843183955', 'swati.khan199@samplemail.com', 'Flat 885, Sector 35, Chandigarh'),
+(200, 'Nandini Sharma', '+91-9879967676', 'nandini.sharma200@samplemail.com', 'Flat 742, Gachibowli, Hyderabad'),
+(201, 'Aarav Joshi', '+91-9842111036', 'aarav.joshi201@samplemail.com', 'Flat 551, HSR Layout, Bengaluru'),
+(202, 'Vivaan Kapoor', '+91-9820399639', 'vivaan.kapoor202@samplemail.com', 'Flat 341, Colaba, Mumbai'),
+(203, 'Aditya Bansal', '+91-9846468984', 'aditya.bansal203@samplemail.com', 'Flat 428, Connaught Place, New Delhi'),
+(204, 'Vihaan Prasad', '+91-9882498004', 'vihaan.prasad204@samplemail.com', 'Flat 242, Koregaon Park, Pune'),
+(205, 'Arjun Shinde', '+91-9830244148', 'arjun.shinde205@samplemail.com', 'Flat 493, Mylapore, Chennai'),
+(206, 'Sai Yadav', '+91-9830509175', 'sai.yadav206@samplemail.com', 'Flat 166, Ballygunge, Kolkata'),
+(207, 'Reyansh Bose', '+91-9865682626', 'reyansh.bose207@samplemail.com', 'Flat 439, Margao, Goa'),
+(208, 'Ayaan Nair', '+91-9882828034', 'ayaan.nair208@samplemail.com', 'Flat 526, Indira Nagar, Nashik'),
+(209, 'Krishna Rao', '+91-9818357162', 'krishna.rao209@samplemail.com', 'Flat 531, Sector 17, Chandigarh'),
+(210, 'Ishaan Choudhary', '+91-9862274692', 'ishaan.choudhary210@samplemail.com', 'Flat 813, Kondapur, Hyderabad'),
+(211, 'Shaurya Mukherjee', '+91-9812621534', 'shaurya.mukherjee211@samplemail.com', 'Flat 490, Jayanagar, Bengaluru'),
+(212, 'Atharv Hegde', '+91-9874019136', 'atharv.hegde212@samplemail.com', 'Flat 461, Bandra West, Mumbai'),
+(213, 'Advik Merchant', '+91-9850079111', 'advik.merchant213@samplemail.com', 'Flat 530, Vasant Kunj, New Delhi'),
+(214, 'Pranav Shukla', '+91-9882238741', 'pranav.shukla214@samplemail.com', 'Flat 600, Kothrud, Pune'),
+(215, 'Kabir Iyer', '+91-9839450273', 'kabir.iyer215@samplemail.com', 'Flat 547, Alwarpet, Chennai'),
+(216, 'Ananya Tiwari', '+91-9875181765', 'ananya.tiwari216@samplemail.com', 'Flat 499, Salt Lake, Kolkata'),
+(217, 'Diya Sundaram', '+91-9855114543', 'diya.sundaram217@samplemail.com', 'Flat 842, Margao, Goa'),
+(218, 'Ira Singhania', '+91-9832151928', 'ira.singhania218@samplemail.com', 'Flat 231, Indira Nagar, Nashik'),
+(219, 'Myra Ghosh', '+91-9893517915', 'myra.ghosh219@samplemail.com', 'Flat 504, Sector 9, Chandigarh'),
+(220, 'Saanvi Iyer', '+91-9889442503', 'saanvi.iyer220@samplemail.com', 'Flat 779, Kondapur, Hyderabad'),
+(221, 'Aanya Tripathi', '+91-9813637575', 'aanya.tripathi221@samplemail.com', 'Flat 759, Indiranagar, Bengaluru'),
+(222, 'Pari Kumar', '+91-9867527432', 'pari.kumar222@samplemail.com', 'Flat 573, Juhu, Mumbai'),
+(223, 'Riya Agarwal', '+91-9834391257', 'riya.agarwal223@samplemail.com', 'Flat 367, Defense Colony, New Delhi'),
+(224, 'Aadhya Pillai', '+91-9860882459', 'aadhya.pillai224@samplemail.com', 'Flat 317, Kalyani Nagar, Pune'),
+(225, 'Kiara Menon', '+91-9871028710', 'kiara.menon225@samplemail.com', 'Flat 446, Alwarpet, Chennai'),
+(226, 'Sneha Deshpande', '+91-9860885459', 'sneha.deshpande226@samplemail.com', 'Flat 871, Park Street, Kolkata'),
+(227, 'Pooja Somani', '+91-9866581473', 'pooja.somani227@samplemail.com', 'Flat 184, Calangute, Goa'),
+(228, 'Priya Pandey', '+91-9873123515', 'priya.pandey228@samplemail.com', 'Flat 868, Gangapur Road, Nashik'),
+(229, 'Neha Patel', '+91-9882399599', 'neha.patel229@samplemail.com', 'Flat 459, Sector 9, Chandigarh'),
+(230, 'Kavita Swaminathan', '+91-9840094589', 'kavita.swaminathan230@samplemail.com', 'Flat 900, Banjara Hills, Hyderabad'),
+(231, 'Rajesh Bhatt', '+91-9897477029', 'rajesh.bhatt231@samplemail.com', 'Flat 873, Indiranagar, Bengaluru'),
+(232, 'Amit Singhal', '+91-9814164775', 'amit.singhal232@samplemail.com', 'Flat 305, Juhu, Mumbai'),
+(233, 'Vikram Ahluwalia', '+91-9812735359', 'vikram.ahluwalia233@samplemail.com', 'Flat 345, Greater Kailash, New Delhi'),
+(234, 'Rohit Singh', '+91-9826941092', 'rohit.singh234@samplemail.com', 'Flat 786, Viman Nagar, Pune'),
+(235, 'Suresh Mishra', '+91-9825353091', 'suresh.mishra235@samplemail.com', 'Flat 324, Boat Club, Chennai'),
+(236, 'Manoj Reddy', '+91-9872415804', 'manoj.reddy236@samplemail.com', 'Flat 886, Park Street, Kolkata'),
+(237, 'Harish Deshmukh', '+91-9859512272', 'harish.deshmukh237@samplemail.com', 'Flat 721, Candolim, Goa'),
+(238, 'Arvind Nambiar', '+91-9891503378', 'arvind.nambiar238@samplemail.com', 'Flat 897, Gangapur Road, Nashik'),
+(239, 'Naveen Kulkarni', '+91-9831980274', 'naveen.kulkarni239@samplemail.com', 'Flat 211, Sector 35, Chandigarh'),
+(240, 'Gaurav Qureshi', '+91-9887669750', 'gaurav.qureshi240@samplemail.com', 'Flat 420, Banjara Hills, Hyderabad'),
+(241, 'Deepa Gopinath', '+91-9887282128', 'deepa.gopinath241@samplemail.com', 'Flat 507, Whitefield, Bengaluru'),
+(242, 'Sunita Dubey', '+91-9836619372', 'sunita.dubey242@samplemail.com', 'Flat 707, Bandra West, Mumbai'),
+(243, 'Ritu Verma', '+91-9894187049', 'ritu.verma243@samplemail.com', 'Flat 205, Greater Kailash, New Delhi'),
+(244, 'Divya Mehta', '+91-9850477742', 'divya.mehta244@samplemail.com', 'Flat 680, Koregaon Park, Pune'),
+(245, 'Tanvi Sengupta', '+91-9815512205', 'tanvi.sengupta245@samplemail.com', 'Flat 646, Alwarpet, Chennai'),
+(246, 'Shalini Saxena', '+91-9867495923', 'shalini.saxena246@samplemail.com', 'Flat 171, Park Street, Kolkata'),
+(247, 'Prerna Chawla', '+91-9877908907', 'prerna.chawla247@samplemail.com', 'Flat 113, Calangute, Goa'),
+(248, 'Bhavna Srinivasan', '+91-9866379329', 'bhavna.srinivasan248@samplemail.com', 'Flat 209, Indira Nagar, Nashik'),
+(249, 'Swati Khan', '+91-9868186525', 'swati.khan249@samplemail.com', 'Flat 751, Sector 35, Chandigarh'),
+(250, 'Nandini Sharma', '+91-9871705170', 'nandini.sharma250@samplemail.com', 'Flat 546, Jubilee Hills, Hyderabad');
+
+-- 4. INSERT INVENTORY (50)
+INSERT INTO inventory (inventory_id, wine_id, stock_quantity, reorder_level) VALUES
+(1, 1, 45, 10),
+(2, 2, 60, 10),
+(3, 3, 80, 10),
+(4, 4, 8, 15),
+(5, 5, 40, 10),
+(6, 6, 55, 10),
+(7, 7, 5, 15),
+(8, 8, 35, 10),
+(9, 9, 6, 15),
+(10, 10, 40, 10),
+(11, 11, 50, 10),
+(12, 12, 30, 10),
+(13, 13, 65, 10),
+(14, 14, 35, 10),
+(15, 15, 7, 15),
+(16, 16, 70, 10),
+(17, 17, 4, 15),
+(18, 18, 20, 10),
+(19, 19, 30, 10),
+(20, 20, 5, 15),
+(21, 21, 3, 15),
+(22, 22, 40, 10),
+(23, 23, 45, 10),
+(24, 24, 75, 10),
+(25, 25, 50, 10),
+(26, 26, 35, 10),
+(27, 27, 28, 10),
+(28, 28, 60, 10),
+(29, 29, 40, 10),
+(30, 30, 22, 10),
+(31, 31, 26, 10),
+(32, 32, 50, 10),
+(33, 33, 38, 10),
+(34, 34, 42, 10),
+(35, 35, 30, 10),
+(36, 36, 35, 10),
+(37, 37, 55, 10),
+(38, 38, 48, 10),
+(39, 39, 6, 15),
+(40, 40, 65, 10),
+(41, 41, 32, 10),
+(42, 42, 28, 10),
+(43, 43, 60, 10),
+(44, 44, 90, 10),
+(45, 45, 40, 10),
+(46, 46, 52, 10),
+(47, 47, 35, 10),
+(48, 48, 2, 15),
+(49, 49, 3, 15),
+(50, 50, 85, 10);
+
+-- 5. INSERT ORDERS (100)
+INSERT INTO orders (order_id, customer_id, order_date, total_amount, payment_status) VALUES
+(1, 46, '2026-04-03 07:41:00', 7930.0, 'Paid'),
+(2, 219, '2026-04-04 14:53:00', 16550.0, 'Pending'),
+(3, 172, '2026-04-06 05:21:00', 7440.0, 'Paid'),
+(4, 72, '2026-04-07 20:44:00', 1850.0, 'Pending'),
+(5, 185, '2026-04-09 05:31:00', 8100.0, 'Paid'),
+(6, 126, '2026-04-10 18:50:00', 8800.0, 'Paid'),
+(7, 149, '2026-04-12 04:30:00', 12440.0, 'Paid'),
+(8, 117, '2026-04-13 15:19:00', 2330.0, 'Paid'),
+(9, 191, '2026-04-15 07:48:00', 10400.0, 'Paid'),
+(10, 186, '2026-04-16 20:48:00', 5400.0, 'Paid'),
+(11, 78, '2026-04-17 23:45:00', 5720.0, 'Paid'),
+(12, 164, '2026-04-19 18:06:00', 4140.0, 'Pending'),
+(13, 241, '2026-04-21 06:07:00', 7800.0, 'Paid'),
+(14, 39, '2026-04-22 13:51:00', 9585.0, 'Paid'),
+(15, 153, '2026-04-24 08:14:00', 7670.0, 'Paid'),
+(16, 159, '2026-04-25 11:39:00', 14000.0, 'Pending'),
+(17, 68, '2026-04-27 00:10:00', 7000.0, 'Paid'),
+(18, 177, '2026-04-28 20:30:00', 4780.0, 'Paid'),
+(19, 221, '2026-04-30 06:04:00', 3700.0, 'Paid'),
+(20, 140, '2026-05-01 14:41:00', 8150.0, 'Paid'),
+(21, 192, '2026-05-03 08:58:00', 6850.0, 'Paid'),
+(22, 104, '2026-05-04 15:32:00', 7740.0, 'Paid'),
+(23, 155, '2026-05-06 03:01:00', 10050.0, 'Paid'),
+(24, 11, '2026-05-07 13:30:00', 9880.0, 'Paid'),
+(25, 249, '2026-05-09 00:30:00', 7890.0, 'Paid'),
+(26, 178, '2026-05-10 18:18:00', 10970.0, 'Paid'),
+(27, 65, '2026-05-12 04:07:00', 9040.0, 'Pending'),
+(28, 14, '2026-05-13 14:33:00', 10450.0, 'Paid'),
+(29, 141, '2026-05-15 01:59:00', 9435.0, 'Paid'),
+(30, 41, '2026-05-16 15:35:00', 8135.0, 'Paid'),
+(31, 214, '2026-05-18 01:31:00', 7720.0, 'Pending'),
+(32, 63, '2026-05-19 18:35:00', 5050.0, 'Paid'),
+(33, 222, '2026-05-21 00:17:00', 8920.0, 'Paid'),
+(34, 77, '2026-05-22 20:37:00', 8100.0, 'Pending'),
+(35, 142, '2026-05-24 07:24:00', 6100.0, 'Paid'),
+(36, 220, '2026-05-25 17:02:00', 5470.0, 'Paid'),
+(37, 247, '2026-05-26 23:08:00', 8050.0, 'Paid'),
+(38, 37, '2026-05-28 17:55:00', 5800.0, 'Paid'),
+(39, 160, '2026-05-30 05:41:00', 9650.0, 'Paid'),
+(40, 228, '2026-05-31 18:55:00', 4650.0, 'Paid'),
+(41, 59, '2026-06-02 00:27:00', 5850.0, 'Pending'),
+(42, 232, '2026-06-03 11:02:00', 4800.0, 'Paid'),
+(43, 38, '2026-06-05 02:33:00', 6150.0, 'Paid'),
+(44, 223, '2026-06-06 17:39:00', 10580.0, 'Paid'),
+(45, 118, '2026-06-08 03:42:00', 4000.0, 'Paid'),
+(46, 242, '2026-06-09 16:37:00', 8000.0, 'Paid'),
+(47, 219, '2026-06-11 06:06:00', 6980.0, 'Paid'),
+(48, 102, '2026-06-12 15:00:00', 10100.0, 'Paid'),
+(49, 199, '2026-06-14 02:38:00', 5500.0, 'Paid'),
+(50, 174, '2026-06-15 13:40:00', 4200.0, 'Paid'),
+(51, 94, '2026-06-17 01:05:00', 10000.0, 'Pending'),
+(52, 225, '2026-06-18 16:33:00', 13400.0, 'Paid'),
+(53, 206, '2026-06-20 00:29:00', 16350.0, 'Pending'),
+(54, 173, '2026-06-21 17:54:00', 9950.0, 'Paid'),
+(55, 117, '2026-06-23 04:43:00', 7130.0, 'Paid'),
+(56, 60, '2026-06-24 18:01:00', 6830.0, 'Paid'),
+(57, 233, '2026-06-26 03:41:00', 3240.0, 'Paid'),
+(58, 25, '2026-06-27 14:56:00', 8850.0, 'Paid'),
+(59, 108, '2026-06-29 08:47:00', 9590.0, 'Paid'),
+(60, 9, '2026-06-30 16:13:00', 6540.0, 'Paid'),
+(61, 140, '2026-07-02 04:03:00', 6145.0, 'Paid'),
+(62, 55, '2026-07-03 20:01:00', 5070.0, 'Paid'),
+(63, 54, '2026-07-05 08:13:00', 2780.0, 'Paid'),
+(64, 1, '2026-07-06 15:54:00', 3500.0, 'Pending'),
+(65, 170, '2026-07-07 23:08:00', 2840.0, 'Paid'),
+(66, 68, '2026-07-09 11:08:00', 10500.0, 'Paid'),
+(67, 200, '2026-07-11 04:32:00', 7390.0, 'Paid'),
+(68, 134, '2026-07-12 15:29:00', 5000.0, 'Paid'),
+(69, 176, '2026-07-14 00:31:00', 7500.0, 'Paid'),
+(70, 33, '2026-07-15 15:39:00', 8700.0, 'Paid'),
+(71, 155, '2026-07-17 05:06:00', 5310.0, 'Paid'),
+(72, 222, '2026-07-18 14:27:00', 5240.0, 'Paid'),
+(73, 107, '2026-07-20 00:20:00', 4010.0, 'Paid'),
+(74, 213, '2026-07-21 12:05:00', 10140.0, 'Paid'),
+(75, 85, '2026-07-23 00:26:00', 6670.0, 'Paid'),
+(76, 27, '2026-07-24 20:32:00', 9400.0, 'Paid'),
+(77, 196, '2026-07-26 03:36:00', 7140.0, 'Paid'),
+(78, 143, '2026-07-27 11:38:00', 10650.0, 'Pending'),
+(79, 90, '2026-07-28 23:11:00', 10250.0, 'Pending'),
+(80, 192, '2026-07-30 19:13:00', 8150.0, 'Paid'),
+(81, 199, '2026-08-01 08:38:00', 7950.0, 'Paid'),
+(82, 173, '2026-08-02 12:17:00', 4990.0, 'Paid'),
+(83, 194, '2026-08-04 07:07:00', 5400.0, 'Paid'),
+(84, 125, '2026-08-05 19:42:00', 3150.0, 'Paid'),
+(85, 53, '2026-08-07 03:13:00', 9635.0, 'Paid'),
+(86, 111, '2026-08-08 13:08:00', 5860.0, 'Paid'),
+(87, 19, '2026-08-10 05:55:00', 10250.0, 'Paid'),
+(88, 147, '2026-08-11 17:45:00', 8940.0, 'Paid'),
+(89, 118, '2026-08-13 04:05:00', 4150.0, 'Paid'),
+(90, 135, '2026-08-14 12:25:00', 4030.0, 'Pending'),
+(91, 163, '2026-08-16 00:33:00', 2990.0, 'Paid'),
+(92, 38, '2026-08-17 15:12:00', 5350.0, 'Paid'),
+(93, 244, '2026-08-19 06:29:00', 6920.0, 'Paid'),
+(94, 222, '2026-08-20 16:09:00', 6950.0, 'Paid'),
+(95, 91, '2026-08-22 07:04:00', 4680.0, 'Paid'),
+(96, 222, '2026-08-23 12:39:00', 7500.0, 'Paid'),
+(97, 233, '2026-08-25 08:41:00', 6800.0, 'Paid'),
+(98, 183, '2026-08-26 12:32:00', 3020.0, 'Paid'),
+(99, 135, '2026-08-28 07:39:00', 12850.0, 'Paid'),
+(100, 14, '2026-08-29 16:04:00', 11640.0, 'Paid');
+
+-- 6. INSERT ORDER_DETAILS (264)
+INSERT INTO order_details (order_detail_id, order_id, wine_id, quantity, unit_price) VALUES
+(1, 1, 30, 3, 1550.0),
+(2, 1, 28, 2, 950.0),
+(3, 1, 47, 2, 690.0),
+(4, 2, 29, 2, 850.0),
+(5, 2, 16, 3, 750.0),
+(6, 2, 49, 3, 4200.0),
+(7, 3, 12, 2, 1500.0),
+(8, 3, 32, 2, 820.0),
+(9, 3, 14, 2, 1400.0),
+(10, 4, 34, 1, 900.0),
+(11, 4, 13, 1, 950.0),
+(12, 5, 45, 3, 1250.0),
+(13, 5, 31, 3, 1450.0),
+(14, 6, 15, 1, 1250.0),
+(15, 6, 26, 2, 1900.0),
+(16, 6, 45, 3, 1250.0),
+(17, 7, 28, 2, 950.0),
+(18, 7, 48, 2, 3800.0),
+(19, 7, 36, 3, 980.0),
+(20, 8, 47, 2, 690.0),
+(21, 8, 13, 1, 950.0),
+(22, 9, 14, 2, 1400.0),
+(23, 9, 48, 2, 3800.0),
+(24, 10, 7, 1, 2250.0),
+(25, 10, 13, 2, 950.0),
+(26, 10, 19, 1, 1250.0),
+(27, 11, 3, 2, 795.0),
+(28, 11, 4, 3, 1050.0),
+(29, 11, 36, 1, 980.0),
+(30, 12, 31, 1, 1450.0),
+(31, 12, 29, 1, 850.0),
+(32, 12, 22, 2, 920.0),
+(33, 13, 32, 3, 820.0),
+(34, 13, 5, 3, 1450.0),
+(35, 13, 37, 1, 990.0),
+(36, 14, 6, 3, 1200.0),
+(37, 14, 16, 2, 750.0),
+(38, 14, 8, 3, 1495.0),
+(39, 15, 29, 2, 850.0),
+(40, 15, 20, 2, 1650.0),
+(41, 15, 38, 3, 890.0),
+(42, 16, 49, 3, 4200.0),
+(43, 16, 14, 1, 1400.0),
+(44, 17, 11, 2, 1650.0),
+(45, 17, 1, 2, 1850.0),
+(46, 18, 19, 2, 1250.0),
+(47, 18, 46, 3, 760.0),
+(48, 19, 41, 1, 1200.0),
+(49, 19, 38, 2, 890.0),
+(50, 19, 43, 1, 720.0),
+(51, 20, 10, 1, 2100.0),
+(52, 20, 5, 2, 1450.0),
+(53, 20, 4, 3, 1050.0),
+(54, 21, 30, 2, 1550.0),
+(55, 21, 45, 3, 1250.0),
+(56, 22, 6, 2, 1200.0),
+(57, 22, 39, 3, 1250.0),
+(58, 22, 3, 2, 795.0),
+(59, 23, 49, 2, 4200.0),
+(60, 23, 44, 3, 550.0),
+(61, 24, 18, 2, 1800.0),
+(62, 24, 12, 3, 1500.0),
+(63, 24, 38, 2, 890.0),
+(64, 25, 21, 1, 1950.0),
+(65, 25, 43, 2, 720.0),
+(66, 25, 7, 2, 2250.0),
+(67, 26, 49, 2, 4200.0),
+(68, 26, 36, 1, 980.0),
+(69, 26, 3, 2, 795.0),
+(70, 27, 33, 3, 1300.0),
+(71, 27, 1, 2, 1850.0),
+(72, 27, 43, 2, 720.0),
+(73, 28, 41, 1, 1200.0),
+(74, 28, 29, 1, 850.0),
+(75, 28, 49, 2, 4200.0),
+(76, 29, 8, 3, 1495.0),
+(77, 29, 2, 1, 1350.0),
+(78, 29, 41, 3, 1200.0),
+(79, 30, 6, 2, 1200.0),
+(80, 30, 15, 1, 1250.0),
+(81, 30, 8, 3, 1495.0),
+(82, 31, 33, 2, 1300.0),
+(83, 31, 46, 2, 760.0),
+(84, 31, 18, 2, 1800.0),
+(85, 32, 39, 3, 1250.0),
+(86, 32, 33, 1, 1300.0),
+(87, 33, 22, 1, 920.0),
+(88, 33, 33, 2, 1300.0),
+(89, 33, 18, 3, 1800.0),
+(90, 34, 10, 2, 2100.0),
+(91, 34, 29, 2, 850.0),
+(92, 34, 35, 2, 1100.0),
+(93, 35, 13, 3, 950.0),
+(94, 35, 45, 2, 1250.0),
+(95, 35, 16, 1, 750.0),
+(96, 36, 46, 3, 760.0),
+(97, 36, 25, 1, 1750.0),
+(98, 36, 43, 2, 720.0),
+(99, 37, 7, 2, 2250.0),
+(100, 37, 29, 1, 850.0),
+(101, 37, 34, 3, 900.0),
+(102, 38, 5, 2, 1450.0),
+(103, 38, 31, 2, 1450.0),
+(104, 39, 44, 2, 550.0),
+(105, 39, 35, 3, 1100.0),
+(106, 39, 25, 3, 1750.0),
+(107, 40, 16, 3, 750.0),
+(108, 40, 41, 2, 1200.0),
+(109, 41, 29, 3, 850.0),
+(110, 41, 11, 2, 1650.0),
+(111, 42, 19, 2, 1250.0),
+(112, 42, 23, 2, 1150.0),
+(113, 43, 11, 1, 1650.0),
+(114, 43, 12, 3, 1500.0),
+(115, 44, 38, 2, 890.0),
+(116, 44, 10, 3, 2100.0),
+(117, 44, 15, 2, 1250.0),
+(118, 45, 19, 1, 1250.0),
+(119, 45, 44, 1, 550.0),
+(120, 45, 35, 2, 1100.0),
+(121, 46, 45, 2, 1250.0),
+(122, 46, 17, 1, 2400.0),
+(123, 46, 30, 2, 1550.0),
+(124, 47, 37, 2, 990.0),
+(125, 47, 19, 1, 1250.0),
+(126, 47, 45, 3, 1250.0),
+(127, 48, 39, 2, 1250.0),
+(128, 48, 48, 2, 3800.0),
+(129, 49, 41, 3, 1200.0),
+(130, 49, 13, 2, 950.0),
+(131, 50, 20, 1, 1650.0),
+(132, 50, 29, 3, 850.0),
+(133, 51, 48, 1, 3800.0),
+(134, 51, 27, 1, 1700.0),
+(135, 51, 12, 3, 1500.0),
+(136, 52, 11, 2, 1650.0),
+(137, 52, 17, 3, 2400.0),
+(138, 52, 31, 2, 1450.0),
+(139, 53, 49, 3, 4200.0),
+(140, 53, 15, 3, 1250.0),
+(141, 54, 6, 2, 1200.0),
+(142, 54, 26, 3, 1900.0),
+(143, 54, 1, 1, 1850.0),
+(144, 55, 38, 2, 890.0),
+(145, 55, 25, 1, 1750.0),
+(146, 55, 41, 3, 1200.0),
+(147, 56, 40, 1, 780.0),
+(148, 56, 15, 3, 1250.0),
+(149, 56, 42, 2, 1150.0),
+(150, 57, 3, 2, 795.0),
+(151, 57, 20, 1, 1650.0),
+(152, 58, 30, 3, 1550.0),
+(153, 58, 24, 3, 680.0),
+(154, 58, 43, 3, 720.0),
+(155, 59, 42, 3, 1150.0),
+(156, 59, 7, 2, 2250.0),
+(157, 59, 32, 2, 820.0),
+(158, 60, 24, 3, 680.0),
+(159, 60, 7, 2, 2250.0),
+(160, 61, 8, 1, 1495.0),
+(161, 61, 30, 3, 1550.0),
+(162, 62, 16, 1, 750.0),
+(163, 62, 9, 1, 1350.0),
+(164, 62, 37, 3, 990.0),
+(165, 63, 22, 1, 920.0),
+(166, 63, 50, 3, 620.0),
+(167, 64, 35, 1, 1100.0),
+(168, 64, 17, 1, 2400.0),
+(169, 65, 38, 1, 890.0),
+(170, 65, 21, 1, 1950.0),
+(171, 66, 48, 2, 3800.0),
+(172, 66, 5, 2, 1450.0),
+(173, 67, 33, 1, 1300.0),
+(174, 67, 15, 3, 1250.0),
+(175, 67, 40, 3, 780.0),
+(176, 68, 4, 2, 1050.0),
+(177, 68, 31, 2, 1450.0),
+(178, 69, 5, 3, 1450.0),
+(179, 69, 6, 1, 1200.0),
+(180, 69, 21, 1, 1950.0),
+(181, 70, 25, 2, 1750.0),
+(182, 70, 39, 2, 1250.0),
+(183, 70, 34, 3, 900.0),
+(184, 71, 42, 3, 1150.0),
+(185, 71, 50, 3, 620.0),
+(186, 72, 27, 2, 1700.0),
+(187, 72, 22, 2, 920.0),
+(188, 73, 24, 2, 680.0),
+(189, 73, 10, 1, 2100.0),
+(190, 73, 44, 1, 550.0),
+(191, 74, 9, 3, 1350.0),
+(192, 74, 36, 3, 980.0),
+(193, 74, 4, 3, 1050.0),
+(194, 75, 47, 3, 690.0),
+(195, 75, 4, 2, 1050.0),
+(196, 75, 19, 2, 1250.0),
+(197, 76, 15, 3, 1250.0),
+(198, 76, 7, 2, 2250.0),
+(199, 76, 23, 1, 1150.0),
+(200, 77, 36, 3, 980.0),
+(201, 77, 50, 3, 620.0),
+(202, 77, 40, 3, 780.0),
+(203, 78, 2, 3, 1350.0),
+(204, 78, 12, 2, 1500.0),
+(205, 78, 18, 2, 1800.0),
+(206, 79, 5, 3, 1450.0),
+(207, 79, 10, 1, 2100.0),
+(208, 79, 48, 1, 3800.0),
+(209, 80, 22, 2, 920.0),
+(210, 80, 11, 3, 1650.0),
+(211, 80, 24, 2, 680.0),
+(212, 81, 10, 3, 2100.0),
+(213, 81, 11, 1, 1650.0),
+(214, 82, 32, 2, 820.0),
+(215, 82, 39, 2, 1250.0),
+(216, 82, 29, 1, 850.0),
+(217, 83, 19, 3, 1250.0),
+(218, 83, 44, 3, 550.0),
+(219, 84, 26, 1, 1900.0),
+(220, 84, 39, 1, 1250.0),
+(221, 85, 19, 1, 1250.0),
+(222, 85, 21, 2, 1950.0),
+(223, 85, 8, 3, 1495.0),
+(224, 86, 33, 3, 1300.0),
+(225, 86, 36, 2, 980.0),
+(226, 87, 2, 2, 1350.0),
+(227, 87, 30, 3, 1550.0),
+(228, 87, 5, 2, 1450.0),
+(229, 88, 8, 2, 1495.0),
+(230, 88, 26, 1, 1900.0),
+(231, 88, 2, 3, 1350.0),
+(232, 89, 16, 3, 750.0),
+(233, 89, 28, 2, 950.0),
+(234, 90, 15, 1, 1250.0),
+(235, 90, 22, 1, 920.0),
+(236, 90, 50, 3, 620.0),
+(237, 91, 23, 1, 1150.0),
+(238, 91, 47, 1, 690.0),
+(239, 91, 42, 1, 1150.0),
+(240, 92, 49, 1, 4200.0),
+(241, 92, 42, 1, 1150.0),
+(242, 93, 44, 3, 550.0),
+(243, 93, 37, 3, 990.0),
+(244, 93, 42, 2, 1150.0),
+(245, 94, 29, 2, 850.0),
+(246, 94, 41, 3, 1200.0),
+(247, 94, 20, 1, 1650.0),
+(248, 95, 3, 2, 795.0),
+(249, 95, 4, 1, 1050.0),
+(250, 95, 24, 3, 680.0),
+(251, 96, 30, 3, 1550.0),
+(252, 96, 38, 1, 890.0),
+(253, 96, 36, 2, 980.0),
+(254, 97, 33, 2, 1300.0),
+(255, 97, 10, 1, 2100.0),
+(256, 97, 4, 2, 1050.0),
+(257, 98, 16, 2, 750.0),
+(258, 98, 46, 2, 760.0),
+(259, 99, 19, 2, 1250.0),
+(260, 99, 25, 3, 1750.0),
+(261, 99, 27, 3, 1700.0),
+(262, 100, 19, 3, 1250.0),
+(263, 100, 17, 3, 2400.0),
+(264, 100, 47, 1, 690.0);
+
+SELECT 'Sample dataset loaded: 25 suppliers, 50 wines, 250 customers, 50 inventory, 100 orders, 200+ details!' AS status;
+
+-- >>> END 03_insert_sample_data.sql <<<
+
+-- >>> BEGIN 05_views.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM - SQL VIEWS
+-- Database Systems Engineering Project
+-- Database: wines_management_db
+-- File: 05_views.sql
+-- =====================================================================
+
+USE wines_management_db;
+
+-- -------------------------------------------------------------
+-- VIEW 1: available_stock_view
+-- -------------------------------------------------------------
+DROP VIEW IF EXISTS available_stock_view;
+CREATE VIEW available_stock_view AS
+SELECT 
+    w.wine_id,
+    w.wine_name,
+    w.category,
+    w.price,
+    i.stock_quantity,
+    i.reorder_level,
+    (i.stock_quantity - i.reorder_level) AS safety_stock,
+    'IN STOCK' AS stock_status,
+    s.supplier_name
+FROM wine w
+JOIN inventory i ON w.wine_id = i.wine_id
+JOIN supplier s ON w.supplier_id = s.supplier_id
+WHERE i.stock_quantity > i.reorder_level;
+
+-- -------------------------------------------------------------
+-- VIEW 2: low_stock_view
+-- -------------------------------------------------------------
+DROP VIEW IF EXISTS low_stock_view;
+CREATE VIEW low_stock_view AS
+SELECT 
+    w.wine_id,
+    w.wine_name,
+    w.category,
+    w.price,
+    i.stock_quantity,
+    i.reorder_level,
+    CASE 
+        WHEN i.stock_quantity = 0 THEN 'OUT OF STOCK'
+        ELSE 'LOW STOCK'
+    END AS stock_status,
+    s.supplier_name,
+    s.phone AS supplier_phone,
+    s.email AS supplier_email
+FROM wine w
+JOIN inventory i ON w.wine_id = i.wine_id
+JOIN supplier s ON w.supplier_id = s.supplier_id
+WHERE i.stock_quantity <= i.reorder_level;
+
+-- -------------------------------------------------------------
+-- VIEW 3: customer_order_history_view
+-- -------------------------------------------------------------
+DROP VIEW IF EXISTS customer_order_history_view;
+CREATE VIEW customer_order_history_view AS
+SELECT 
+    c.customer_id,
+    c.customer_name,
+    c.phone,
+    c.email,
+    COUNT(o.order_id) AS total_orders,
+    COALESCE(SUM(o.total_amount), 0.00) AS total_spent,
+    MAX(o.order_date) AS latest_order_date
+FROM customer c
+LEFT JOIN orders o ON c.customer_id = o.customer_id
+GROUP BY c.customer_id, c.customer_name, c.phone, c.email;
+
+-- -------------------------------------------------------------
+-- VIEW 4: sales_summary_view
+-- -------------------------------------------------------------
+DROP VIEW IF EXISTS sales_summary_view;
+CREATE VIEW sales_summary_view AS
+SELECT 
+    w.category,
+    COUNT(DISTINCT o.order_id) AS total_orders,
+    SUM(od.quantity) AS total_bottles_sold,
+    SUM(od.subtotal) AS gross_revenue,
+    ROUND(AVG(od.unit_price), 2) AS average_selling_price
+FROM order_details od
+JOIN wine w ON od.wine_id = w.wine_id
+JOIN orders o ON od.order_id = o.order_id
+WHERE o.payment_status = 'Paid'
+GROUP BY w.category;
+
+-- -------------------------------------------------------------
+-- VIEW 5: wine_sales_view
+-- -------------------------------------------------------------
+DROP VIEW IF EXISTS wine_sales_view;
+CREATE VIEW wine_sales_view AS
+SELECT 
+    w.wine_id,
+    w.wine_name,
+    w.category,
+    w.price AS catalog_price,
+    COALESCE(SUM(od.quantity), 0) AS total_units_sold,
+    COALESCE(SUM(od.subtotal), 0.00) AS total_revenue
+FROM wine w
+LEFT JOIN order_details od ON w.wine_id = od.wine_id
+GROUP BY w.wine_id, w.wine_name, w.category, w.price;
+
+SELECT 'All 5 SQL views created successfully!' AS status;
+
+-- >>> END 05_views.sql <<<
+
+-- >>> BEGIN 06_procedures.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM - STORED PROCEDURES
+-- Database Systems Engineering Project
+-- Database: wines_management_db
+-- File: 06_procedures.sql
+-- =====================================================================
+
+USE wines_management_db;
+
+DELIMITER $$
+
+-- -------------------------------------------------------------
+-- PROCEDURE 1: add_stock
+-- Increases stock in inventory and wine catalog transactionally
+-- -------------------------------------------------------------
+DROP PROCEDURE IF EXISTS add_stock$$
+CREATE PROCEDURE add_stock(
+    IN p_wine_id INT,
+    IN p_quantity INT
+)
+BEGIN
+    IF p_quantity <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Stock quantity to add must be positive.';
+    END IF;
+
+    START TRANSACTION;
+    
+    -- Update inventory table
+    UPDATE inventory 
+    SET stock_quantity = stock_quantity + p_quantity
+    WHERE wine_id = p_wine_id;
+
+    -- Update wine table
+    UPDATE wine
+    SET quantity = quantity + p_quantity
+    WHERE wine_id = p_wine_id;
+
+    COMMIT;
+    SELECT 'Stock added successfully.' AS message;
+END$$
+
+-- -------------------------------------------------------------
+-- PROCEDURE 2: remove_stock
+-- Decreases stock in inventory and wine catalog safely
+-- -------------------------------------------------------------
+DROP PROCEDURE IF EXISTS remove_stock$$
+CREATE PROCEDURE remove_stock(
+    IN p_wine_id INT,
+    IN p_quantity INT
+)
+BEGIN
+    DECLARE current_stock INT DEFAULT 0;
+
+    IF p_quantity <= 0 THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Quantity to remove must be positive.';
+    END IF;
+
+    SELECT stock_quantity INTO current_stock
+    FROM inventory
+    WHERE wine_id = p_wine_id;
+
+    IF current_stock < p_quantity THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Insufficient stock. Cannot remove more than available.';
+    END IF;
+
+    START TRANSACTION;
+
+    UPDATE inventory
+    SET stock_quantity = stock_quantity - p_quantity
+    WHERE wine_id = p_wine_id;
+
+    UPDATE wine
+    SET quantity = quantity - p_quantity
+    WHERE wine_id = p_wine_id;
+
+    COMMIT;
+    SELECT 'Stock removed successfully.' AS message;
+END$$
+
+-- -------------------------------------------------------------
+-- PROCEDURE 3: get_customer_orders
+-- Returns detailed order list for a specific customer
+-- -------------------------------------------------------------
+DROP PROCEDURE IF EXISTS get_customer_orders$$
+CREATE PROCEDURE get_customer_orders(IN p_customer_id INT)
+BEGIN
+    SELECT 
+        o.order_id,
+        o.order_date,
+        o.total_amount,
+        o.payment_status,
+        COUNT(od.order_detail_id) AS items_count,
+        SUM(od.quantity) AS total_bottles
+    FROM orders o
+    LEFT JOIN order_details od ON o.order_id = od.order_id
+    WHERE o.customer_id = p_customer_id
+    GROUP BY o.order_id, o.order_date, o.total_amount, o.payment_status
+    ORDER BY o.order_date DESC;
+END$$
+
+-- -------------------------------------------------------------
+-- PROCEDURE 4: get_low_stock
+-- Retrieves all items below or equal to their reorder threshold
+-- -------------------------------------------------------------
+DROP PROCEDURE IF EXISTS get_low_stock$$
+CREATE PROCEDURE get_low_stock()
+BEGIN
+    SELECT 
+        w.wine_id,
+        w.wine_name,
+        w.category,
+        w.price,
+        i.stock_quantity,
+        i.reorder_level,
+        (i.reorder_level - i.stock_quantity) AS shortage,
+        s.supplier_name,
+        s.phone AS supplier_phone
+    FROM wine w
+    JOIN inventory i ON w.wine_id = i.wine_id
+    JOIN supplier s ON w.supplier_id = s.supplier_id
+    WHERE i.stock_quantity <= i.reorder_level
+    ORDER BY shortage DESC;
+END$$
+
+-- -------------------------------------------------------------
+-- PROCEDURE 5: get_total_sales
+-- Calculates aggregate revenue and order summary
+-- -------------------------------------------------------------
+DROP PROCEDURE IF EXISTS get_total_sales$$
+CREATE PROCEDURE get_total_sales()
+BEGIN
+    SELECT 
+        COUNT(order_id) AS total_orders,
+        SUM(CASE WHEN payment_status = 'Paid' THEN total_amount ELSE 0 END) AS total_revenue_paid,
+        SUM(CASE WHEN payment_status = 'Pending' THEN total_amount ELSE 0 END) AS pending_revenue,
+        ROUND(AVG(total_amount), 2) AS average_order_value,
+        MAX(total_amount) AS highest_order_value
+    FROM orders;
+END$$
+
+DELIMITER ;
+
+SELECT 'All 5 stored procedures created successfully!' AS status;
+
+-- >>> END 06_procedures.sql <<<
+
+-- >>> BEGIN 07_triggers.sql <<<
+-- =====================================================================
+-- WINES MANAGEMENT SYSTEM - DATABASE TRIGGERS
+-- Database Systems Engineering Project
+-- Database: wines_management_db
+-- File: 07_triggers.sql
+-- =====================================================================
+
+USE wines_management_db;
+
+DELIMITER $$
+
+-- -------------------------------------------------------------
+-- TRIGGER 1: Check Stock Availability & Prevent Negative Stock
+-- Fires BEFORE INSERT on order_details
+-- -------------------------------------------------------------
+DROP TRIGGER IF EXISTS trg_prevent_negative_inventory$$
+CREATE TRIGGER trg_prevent_negative_inventory
+BEFORE INSERT ON order_details
+FOR EACH ROW
+BEGIN
+    DECLARE available_stock INT DEFAULT 0;
+
+    SELECT stock_quantity INTO available_stock
+    FROM inventory
+    WHERE wine_id = NEW.wine_id
+    LIMIT 1;
+
+    IF available_stock IS NULL OR available_stock < NEW.quantity THEN
+        SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Insufficient stock. Operation aborted by database integrity trigger.';
+    END IF;
+END$$
+
+-- -------------------------------------------------------------
+-- TRIGGER 2: Auto-Update Order Total Amount
+-- Fires AFTER INSERT on order_details
+-- -------------------------------------------------------------
+DROP TRIGGER IF EXISTS trg_update_order_total_insert$$
+CREATE TRIGGER trg_update_order_total_insert
+AFTER INSERT ON order_details
+FOR EACH ROW
+BEGIN
+    UPDATE orders
+    SET total_amount = (
+        SELECT COALESCE(SUM(subtotal), 0)
+        FROM order_details
+        WHERE order_id = NEW.order_id
+    )
+    WHERE order_id = NEW.order_id;
+END$$
+
+-- -------------------------------------------------------------
+-- TRIGGER 3: Auto-Update Order Total on Item Deletion
+-- Fires AFTER DELETE on order_details
+-- -------------------------------------------------------------
+DROP TRIGGER IF EXISTS trg_update_order_total_delete$$
+CREATE TRIGGER trg_update_order_total_delete
+AFTER DELETE ON order_details
+FOR EACH ROW
+BEGIN
+    UPDATE orders
+    SET total_amount = (
+        SELECT COALESCE(SUM(subtotal), 0)
+        FROM order_details
+        WHERE order_id = OLD.order_id
+    )
+    WHERE order_id = OLD.order_id;
+END$$
+
+DELIMITER ;
+
+SELECT 'All triggers created successfully!' AS status;
+
+-- >>> END 07_triggers.sql <<<
+
