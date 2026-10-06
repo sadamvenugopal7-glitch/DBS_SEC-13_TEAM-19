@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sales Orders - Wines Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="brand-icon">🍷</div>
+            <div>
+                <div class="brand-title">Wines MS</div>
+                <div class="brand-subtitle">DBMS Enterprise</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="nav-label">Core Operations</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="wines.html" class="nav-link">
+                    <i class="bi bi-cup-straw"></i> Wines Catalog
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="suppliers.html" class="nav-link">
+                    <i class="bi bi-truck"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i> Inventory Stock
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link active">
+                    <i class="bi bi-receipt"></i> Sales Orders
+                </a>
+            </li>
+
+            <li class="nav-label">Analytics & Database</li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="bi bi-graph-up-arrow"></i> Sales Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="sql-data.html" class="nav-link">
+                    <i class="bi bi-database-down"></i> SQL Data
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="er-diagram.html" class="nav-link">
+                    <i class="bi bi-diagram-3"></i> ER Diagram
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>
+                <span class="status-indicator"></span>
+                <span>MySQL Connected</span>
+            </div>
+            <span class="badge bg-dark">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-nav-toggle" id="mobileNavToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title-area">
+                    <h1>Sales Orders & Invoicing</h1>
+                    <p>ACID Transactional order placement, automated inventory deductions, and line-item audits</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-outline-wine" onclick="downloadOrdersCsv()">
+                    <i class="bi bi-download"></i> Download Orders CSV
+                </button>
+                <button class="btn btn-wine" onclick="openCreateOrderModal()">
+                    <i class="bi bi-plus-circle"></i> Create New Order
+                </button>
+            </div>
+        </header>
+
+        <main class="content-body">
+            <div class="card-custom">
+                <!-- Search & Filters Toolbar -->
+                <div class="toolbar-flex">
+                    <div class="search-box-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="orderSearchInput" class="search-input" placeholder="Search orders by customer or status...">
+                    </div>
+
+                    <div class="d-flex align-items-center gap-2 flex-wrap">
+                        <select id="orderStatusFilter" class="select-filter">
+                            <option value="All">All Payment Statuses</option>
+                            <option value="Paid">Paid</option>
+                            <option value="Pending">Pending</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted">From:</span>
+                            <input type="date" id="orderStartDate" class="form-control form-control-sm" style="width: 140px;">
+                        </div>
+
+                        <div class="d-flex align-items-center gap-1">
+                            <span class="small text-muted">To:</span>
+                            <input type="date" id="orderEndDate" class="form-control form-control-sm" style="width: 140px;">
+                        </div>
+
+                        <span class="badge bg-secondary p-2" id="ordersCountBadge">0 Orders</span>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Order ID</th>
+                                <th>Customer Name</th>
+                                <th>Order Date & Time</th>
+                                <th>Items</th>
+                                <th>Total Amount</th>
+                                <th>Payment Status</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody id="ordersTableBody">
+                            <tr><td colspan="7" class="text-center py-4 text-muted">Loading orders...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- CREATE ORDER MODAL (ACID TRANSACTION DEMO) -->
+    <div class="modal fade" id="createOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-wine">
+                    <div>
+                        <h5 class="modal-title mb-0"><i class="bi bi-bag-check-fill me-2"></i>Create New Sales Order</h5>
+                        <small class="text-white-50">Executes within an atomic ACID transaction: checks stock, inserts details, decrements inventory</small>
+                    </div>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="createOrderForm">
+                    <div class="modal-body p-4">
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-7">
+                                <label class="form-label fw-semibold">Select Customer <span class="text-danger">*</span></label>
+                                <select id="orderCustomerSelect" class="form-select" required>
+                                    <option value="">-- Choose Customer --</option>
+                                </select>
+                            </div>
+                            <div class="col-md-5">
+                                <label class="form-label fw-semibold">Payment Status</label>
+                                <select id="orderPaymentStatus" class="form-select">
+                                    <option value="Paid">Paid (Cash / UPI / Card)</option>
+                                    <option value="Pending">Pending / On Credit</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="d-flex align-items-center justify-content-between mb-2">
+                            <h6 class="fw-bold mb-0 text-muted text-uppercase" style="font-size: 12px; letter-spacing: 0.5px;">Order Line Items</h6>
+                            <button type="button" class="btn btn-sm btn-outline-wine" onclick="addOrderItemRow()">
+                                <i class="bi bi-plus-circle"></i> Add Item Row
+                            </button>
+                        </div>
+
+                        <!-- Dynamic Line Items Container -->
+                        <div id="orderItemsContainer" class="mb-3"></div>
+
+                        <!-- Grand Total Display -->
+                        <div class="p-3 bg-light rounded d-flex justify-content-between align-items-center border">
+                            <span class="fw-semibold">Calculated Total Order Value:</span>
+                            <span class="fs-4 fw-bold" style="color: var(--wine-primary);" id="orderGrandTotalDisplay">₹0.00</span>
+                        </div>
+                    </div>
+                    <div class="modal-footer bg-light p-3">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-wine">Commit Order Transaction</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW ORDER DETAILS MODAL -->
+    <div class="modal fade" id="viewOrderModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header modal-header-wine">
+                    <h5 class="modal-title">Sales Order Details <span id="viewOrderIdBadge" class="badge bg-gold text-dark ms-2"></span></h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <!-- Customer Information Summary -->
+                    <div class="row g-3 mb-4 p-3 bg-light rounded border">
+                        <div class="col-md-6">
+                            <div class="small text-muted">Customer Name</div>
+                            <div class="fw-bold fs-6" id="viewOrderCustomer">-</div>
+                            <div class="small text-muted mt-2">Delivery Address</div>
+                            <div id="viewOrderAddress" class="small">-</div>
+                        </div>
+                        <div class="col-md-6">
+                            <div class="small text-muted">Contact Details</div>
+                            <div id="viewOrderPhone" class="small">-</div>
+                            <div id="viewOrderEmail" class="small">-</div>
+                            <div class="d-flex justify-content-between mt-2 pt-2 border-top">
+                                <div>
+                                    <div class="small text-muted">Order Date</div>
+                                    <div id="viewOrderDate" class="small fw-semibold">-</div>
+                                </div>
+                                <div>
+                                    <div class="small text-muted">Status</div>
+                                    <div id="viewOrderStatus" class="badge badge-paid">-</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Items Table -->
+                    <h6 class="fw-bold mb-3">Purchased Items Breakdown</h6>
+                    <div class="table-responsive">
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Wine ID</th>
+                                    <th>Wine Product</th>
+                                    <th>Category</th>
+                                    <th>Quantity</th>
+                                    <th>Unit Price</th>
+                                    <th class="text-end">Line Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="viewOrderItemsTable">
+                                <tr><td colspan="6" class="text-center py-3 text-muted">Loading items...</td></tr>
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <th colspan="5" class="text-end fs-6">Grand Total:</th>
+                                    <th class="text-end fs-5 fw-bold" style="color: var(--wine-primary);" id="viewOrderTotal">₹0.00</th>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer bg-light p-3">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/orders.js"></script>
+</body>
+</html>

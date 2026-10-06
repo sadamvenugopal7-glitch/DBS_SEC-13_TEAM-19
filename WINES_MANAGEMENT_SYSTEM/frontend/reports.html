@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reports & Analytical Intelligence - Wines Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="brand-icon">🍷</div>
+            <div>
+                <div class="brand-title">Wines MS</div>
+                <div class="brand-subtitle">DBMS Enterprise</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="nav-label">Core Operations</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="wines.html" class="nav-link">
+                    <i class="bi bi-cup-straw"></i> Wines
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="suppliers.html" class="nav-link">
+                    <i class="bi bi-truck"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i> Inventory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <i class="bi bi-receipt"></i> Orders
+                </a>
+            </li>
+
+            <li class="nav-label">Analytics & Database</li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link active">
+                    <i class="bi bi-graph-up-arrow"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="sql-data.html" class="nav-link">
+                    <i class="bi bi-database-down"></i> SQL Data
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="er-diagram.html" class="nav-link">
+                    <i class="bi bi-diagram-3"></i> ER Diagram
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#aboutProject" class="nav-link">
+                    <i class="bi bi-info-circle"></i> About Project
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>
+                <span class="status-indicator"></span>
+                <span>MySQL Connected</span>
+            </div>
+            <span class="badge bg-dark">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-nav-toggle" id="mobileNavToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title-area">
+                    <h1>Executive Analytics & DBMS Reports</h1>
+                    <p>Demonstrating GROUP BY, HAVING, multi-table JOINs, and aggregation queries in MySQL</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-wine btn-sm" onclick="downloadActiveReportCsv()">
+                    <i class="bi bi-file-earmark-spreadsheet me-1"></i> Download Active Report CSV
+                </button>
+            </div>
+        </header>
+
+        <main class="content-body">
+            <!-- 10 Academic Report Selector Grid -->
+            <div class="card-custom mb-4">
+                <h5 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-grid-3x3-gap-fill me-2"></i>Select Report (10 Academic Reports)</h5>
+                <div class="d-flex align-items-center gap-2 flex-wrap" id="reportButtonsContainer">
+                    <button class="btn btn-sm btn-wine report-tab-btn active" data-report="available-stock">
+                        1. Available Stock
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="low-stock">
+                        2. Low Stock Products
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="out-of-stock">
+                        3. Out of Stock Products
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="customer-history">
+                        4. Customer Order History
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="sales">
+                        5. Total Sales Summary
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="sales-by-date">
+                        6. Sales by Date
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="sales-by-wine">
+                        7. Sales by Wine
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="sales-by-category">
+                        8. Sales by Category
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="supplier-wines">
+                        9. Supplier-wise Wines
+                    </button>
+                    <button class="btn btn-sm btn-outline-wine report-tab-btn" data-report="top-wines">
+                        10. Top Selling Wines
+                    </button>
+                </div>
+            </div>
+
+            <!-- Report Table Container -->
+            <div class="card-custom">
+                <div class="toolbar-flex mb-3">
+                    <div class="search-box-wrapper">
+                        <i class="bi bi-search"></i>
+                        <input type="text" id="reportSearchInput" class="search-input" placeholder="Search within this report...">
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="badge bg-secondary p-2" id="reportCountBadge">0 Rows</span>
+                        <h5 class="mb-0 fw-bold" style="color: var(--wine-dark);" id="reportTitleDisplay">Available Stock Report</h5>
+                    </div>
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead id="reportTableHead"></thead>
+                        <tbody id="reportTableBody">
+                            <tr><td colspan="8" class="text-center py-4 text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading report data from database...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/reports.js"></script>
+</body>
+</html>

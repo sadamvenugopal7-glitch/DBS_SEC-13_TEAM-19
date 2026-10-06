@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ER Diagram - Wines Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Mermaid.js -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        mermaid.initialize({ startOnLoad: true, theme: 'neutral' });
+    </script>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="brand-icon">🍷</div>
+            <div>
+                <div class="brand-title">Wines MS</div>
+                <div class="brand-subtitle">DBMS Enterprise</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="nav-label">Core Operations</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="wines.html" class="nav-link">
+                    <i class="bi bi-cup-straw"></i> Wines
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="suppliers.html" class="nav-link">
+                    <i class="bi bi-truck"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i> Inventory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <i class="bi bi-receipt"></i> Orders
+                </a>
+            </li>
+
+            <li class="nav-label">Analytics & Database</li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="bi bi-graph-up-arrow"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="sql-data.html" class="nav-link">
+                    <i class="bi bi-database-down"></i> SQL Data
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="er-diagram.html" class="nav-link active">
+                    <i class="bi bi-diagram-3"></i> ER Diagram
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#aboutProject" class="nav-link">
+                    <i class="bi bi-info-circle"></i> About Project
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>
+                <span class="status-indicator"></span>
+                <span>MySQL Connected</span>
+            </div>
+            <span class="badge bg-dark">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-nav-toggle" id="mobileNavToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title-area">
+                    <h1>Entity-Relationship (ER) Diagram</h1>
+                    <p>Relational Database Schema, Foreign Key Constraints & Normalization (3NF)</p>
+                </div>
+            </div>
+            <div class="top-actions">
+                <button class="btn btn-wine btn-sm" onclick="downloadMermaidCode()">
+                    <i class="bi bi-download me-1"></i> Download ER Code (.mmd)
+                </button>
+            </div>
+        </header>
+
+        <main class="content-body">
+            
+            <!-- Visual ER Diagram -->
+            <div class="card-custom mb-4">
+                <div class="card-header-flex">
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: var(--wine-dark);">Crow's Foot Relational ER Diagram</h4>
+                        <p class="text-muted small mb-0">Generated dynamically from formal DBMS schema definition</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white border rounded text-center overflow-auto">
+                    <div class="mermaid" id="mermaidDiagram">
+erDiagram
+
+SUPPLIER {
+    int supplier_id PK
+    varchar supplier_name
+    varchar phone
+    varchar email
+    varchar address
+}
+
+WINE {
+    int wine_id PK
+    varchar wine_name
+    varchar category
+    decimal price
+    int quantity
+    int supplier_id FK
+    text description
+}
+
+CUSTOMER {
+    int customer_id PK
+    varchar customer_name
+    varchar phone
+    varchar email
+    varchar address
+}
+
+ORDERS {
+    int order_id PK
+    int customer_id FK
+    datetime order_date
+    decimal total_amount
+    varchar payment_status
+}
+
+ORDER_DETAILS {
+    int order_detail_id PK
+    int order_id FK
+    int wine_id FK
+    int quantity
+    decimal unit_price
+    decimal subtotal
+}
+
+INVENTORY {
+    int inventory_id PK
+    int wine_id FK
+    int stock_quantity
+    int reorder_level
+    timestamp last_updated
+}
+
+SUPPLIER ||--o{ WINE : supplies
+
+CUSTOMER ||--o{ ORDERS : places
+
+ORDERS ||--|{ ORDER_DETAILS : contains
+
+WINE ||--o{ ORDER_DETAILS : included_in
+
+WINE ||--|| INVENTORY : has
+                    </div>
+                </div>
+            </div>
+
+            <!-- Draw.io Instructions & Mermaid Source Code -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card-custom h-100">
+                        <h5 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-diagram-2 me-2"></i>How to Import into Draw.io</h5>
+                        <p class="text-muted small">You can easily import this exact schema diagram into Draw.io to generate high-resolution PNG or PDF figures for your academic report:</p>
+                        <ol class="small text-dark ps-3 mb-3">
+                            <li class="mb-2">Open <a href="https://app.diagrams.net/" target="_blank" class="fw-semibold text-decoration-none">Draw.io (diagrams.net)</a> in your browser.</li>
+                            <li class="mb-2">Click <strong>Create New Diagram</strong> &rarr; <strong>Blank Diagram</strong>.</li>
+                            <li class="mb-2">In the top menu, go to: <strong>Arrange &rarr; Insert &rarr; Advanced &rarr; Mermaid</strong>.</li>
+                            <li class="mb-2">Copy and paste the Mermaid ER code shown on the right into the editor.</li>
+                            <li class="mb-2">Click <strong>Insert</strong> to automatically render the relational Crow's foot diagram.</li>
+                            <li>Go to <strong>File &rarr; Export as &rarr; PNG / PDF</strong> for your viva documentation.</li>
+                        </ol>
+                        <button class="btn btn-gold btn-sm" onclick="copyMermaidCode()">
+                            <i class="bi bi-clipboard me-1"></i> Copy Mermaid ER Code
+                        </button>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card-custom h-100">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <h5 class="fw-bold mb-0" style="color: var(--wine-dark);"><i class="bi bi-code-slash me-2"></i>Mermaid ER Specification</h5>
+                            <span class="badge bg-light text-dark border">diagrams/er_diagram.mmd</span>
+                        </div>
+                        <pre class="bg-dark text-white p-3 rounded small mb-0 overflow-auto" style="max-height: 280px; font-family: Consolas, monospace;" id="mermaidSourceCode"><code>erDiagram
+
+SUPPLIER {
+    int supplier_id PK
+    varchar supplier_name
+    varchar phone
+    varchar email
+    varchar address
+}
+
+WINE {
+    int wine_id PK
+    varchar wine_name
+    varchar category
+    decimal price
+    int quantity
+    int supplier_id FK
+    text description
+}
+
+CUSTOMER {
+    int customer_id PK
+    varchar customer_name
+    varchar phone
+    varchar email
+    varchar address
+}
+
+ORDERS {
+    int order_id PK
+    int customer_id FK
+    datetime order_date
+    decimal total_amount
+    varchar payment_status
+}
+
+ORDER_DETAILS {
+    int order_detail_id PK
+    int order_id FK
+    int wine_id FK
+    int quantity
+    decimal unit_price
+    decimal subtotal
+}
+
+INVENTORY {
+    int inventory_id PK
+    int wine_id FK
+    int stock_quantity
+    int reorder_level
+    timestamp last_updated
+}
+
+SUPPLIER ||--o{ WINE : supplies
+
+CUSTOMER ||--o{ ORDERS : places
+
+ORDERS ||--|{ ORDER_DETAILS : contains
+
+WINE ||--o{ ORDER_DETAILS : included_in
+
+WINE ||--|| INVENTORY : has</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relational Integrity Rules -->
+            <div class="card-custom">
+                <h5 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-shield-check me-2"></i>Database Cardinalities & Referential Constraints</h5>
+                <div class="table-responsive">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Entity Relationship</th>
+                                <th>Cardinality</th>
+                                <th>Foreign Key</th>
+                                <th>On Update</th>
+                                <th>On Delete</th>
+                                <th>Academic DBMS Purpose</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>SUPPLIER &rarr; WINE</strong></td>
+                                <td>1 : M (One-to-Many)</td>
+                                <td><code>wine.supplier_id</code></td>
+                                <td><span class="badge bg-primary">CASCADE</span></td>
+                                <td><span class="badge bg-danger">RESTRICT</span></td>
+                                <td>Prevents deleting a supplier if wines exist from that supplier.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>CUSTOMER &rarr; ORDERS</strong></td>
+                                <td>1 : M (One-to-Many)</td>
+                                <td><code>orders.customer_id</code></td>
+                                <td><span class="badge bg-primary">CASCADE</span></td>
+                                <td><span class="badge bg-danger">RESTRICT</span></td>
+                                <td>Customer record cannot be deleted while sales order history exists.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>ORDERS &rarr; ORDER_DETAILS</strong></td>
+                                <td>1 : M (One-to-Many)</td>
+                                <td><code>order_details.order_id</code></td>
+                                <td><span class="badge bg-primary">CASCADE</span></td>
+                                <td><span class="badge bg-danger">CASCADE</span></td>
+                                <td>Deleting an order automatically cleans up all associated order line items.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WINE &rarr; ORDER_DETAILS</strong></td>
+                                <td>1 : M (One-to-Many)</td>
+                                <td><code>order_details.wine_id</code></td>
+                                <td><span class="badge bg-primary">CASCADE</span></td>
+                                <td><span class="badge bg-danger">RESTRICT</span></td>
+                                <td>Wine cannot be removed from database if previously purchased in sales orders.</td>
+                            </tr>
+                            <tr>
+                                <td><strong>WINE &rarr; INVENTORY</strong></td>
+                                <td>1 : 1 (One-to-One)</td>
+                                <td><code>inventory.wine_id</code> (UNIQUE)</td>
+                                <td><span class="badge bg-primary">CASCADE</span></td>
+                                <td><span class="badge bg-danger">CASCADE</span></td>
+                                <td>Ensures every wine has exactly one tracked inventory stock row.</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        function copyMermaidCode() {
+            const code = document.getElementById('mermaidSourceCode').innerText.trim();
+            navigator.clipboard.writeText(code).then(() => {
+                showToast('Mermaid ER code copied to clipboard!', 'success');
+            });
+        }
+
+        function downloadMermaidCode() {
+            const code = document.getElementById('mermaidSourceCode').innerText.trim();
+            const blob = new Blob([code], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'er_diagram.mmd';
+            a.click();
+            URL.revokeObjectURL(url);
+            showToast('Downloaded er_diagram.mmd', 'success');
+        }
+    </script>
+</body>
+</html>

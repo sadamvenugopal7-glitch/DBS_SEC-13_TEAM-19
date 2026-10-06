@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SQL Data & Database Exports - Wines Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="brand-icon">🍷</div>
+            <div>
+                <div class="brand-title">Wines MS</div>
+                <div class="brand-subtitle">DBMS Enterprise</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="nav-label">Core Operations</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="wines.html" class="nav-link">
+                    <i class="bi bi-cup-straw"></i> Wines
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="suppliers.html" class="nav-link">
+                    <i class="bi bi-truck"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i> Inventory
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <i class="bi bi-receipt"></i> Orders
+                </a>
+            </li>
+
+            <li class="nav-label">Analytics & Database</li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="bi bi-graph-up-arrow"></i> Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="sql-data.html" class="nav-link active">
+                    <i class="bi bi-database-down"></i> SQL Data
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="er-diagram.html" class="nav-link">
+                    <i class="bi bi-diagram-3"></i> ER Diagram
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="index.html#aboutProject" class="nav-link">
+                    <i class="bi bi-info-circle"></i> About Project
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>
+                <span class="status-indicator"></span>
+                <span id="dbConnectionStatus">MySQL Connected</span>
+            </div>
+            <span class="badge bg-dark">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-nav-toggle" id="mobileNavToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title-area">
+                    <h1>SQL Data & Export Center</h1>
+                    <p>Academic DBMS Data Center — Download SQL scripts, schemas, and live database table exports</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-body">
+            
+            <!-- Notice Banner -->
+            <div class="alert alert-info d-flex align-items-center gap-3 mb-4" role="alert" style="background-color: #fdf8e2; border-color: #d4af37; color: #4a3600;">
+                <i class="bi bi-info-circle-fill fs-4" style="color: #b8860b;"></i>
+                <div>
+                    <strong>Academic Evaluation Ready:</strong> All download buttons below generate dynamic RFC-compliant CSVs and standard MySQL 8.x compatible SQL scripts that can be directly executed in <strong>MySQL Workbench</strong> or CLI.
+                </div>
+            </div>
+
+            <!-- 7 Required Data Cards -->
+            <div class="row g-4 mb-4">
+                
+                <!-- CARD 1: DATABASE SQL -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: var(--wine-primary) !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box icon-wine">
+                                    <i class="bi bi-database-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">DATABASE SQL</h5>
+                                    <span class="badge bg-danger-subtle text-danger border">Full Schema & Data</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Complete single-click SQL deployment script containing <code>CREATE DATABASE</code>, 6 normalized tables, constraints, 5 views, 5 stored procedures, 3 triggers, and all sample data.
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li><code>complete_database.sql</code> (67 KB)</li>
+                                <li>Executable via MySQL Workbench</li>
+                                <li>Includes ACID triggers & procedures</li>
+                            </ul>
+                        </div>
+                        <div class="d-grid gap-2">
+                            <a href="/api/sql/complete" class="btn btn-wine btn-sm">
+                                <i class="bi bi-download me-1"></i> Download Complete SQL
+                            </a>
+                            <div class="d-flex gap-2">
+                                <a href="/api/sql/schema" class="btn btn-outline-secondary btn-sm flex-fill">
+                                    <i class="bi bi-file-earmark-code me-1"></i> Schema Only
+                                </a>
+                                <a href="/api/sql/sample-data" class="btn btn-outline-secondary btn-sm flex-fill">
+                                    <i class="bi bi-file-earmark-text me-1"></i> Seed Data
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 2: CUSTOMER DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #d4af37 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box icon-gold">
+                                    <i class="bi bi-people-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">CUSTOMER DATA</h5>
+                                    <span class="badge bg-warning-subtle text-dark border">250+ Customers</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>customer</code> dataset including customer IDs, synthetic customer names, phone numbers, verified emails, delivery addresses, and registration timestamps.
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Primary Key: <code>customer_id</code></li>
+                                <li>Indexed on <code>email</code>, <code>phone</code></li>
+                                <li>Enforces RESTRICT on deletion</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/customers" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/customers/export/csv" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 3: WINE DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #800020 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box icon-wine">
+                                    <i class="bi bi-cup-straw"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">WINE DATA</h5>
+                                    <span class="badge bg-danger-subtle text-danger border">50 Wine SKUs</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>wine</code> records covering wine varieties, categories (Red, White, Sparkling, Rosé, Dessert, Fortified), unit prices, stock quantities, and supplier relationships.
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Primary Key: <code>wine_id</code></li>
+                                <li>Foreign Key: <code>supplier_id</code></li>
+                                <li>Synchronized with <code>inventory</code></li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/wines" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/wines/export/csv" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 4: SUPPLIER DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #0dcaf0 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box icon-info">
+                                    <i class="bi bi-truck"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">SUPPLIER DATA</h5>
+                                    <span class="badge bg-info-subtle text-info-emphasis border">25 Vineyards</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>supplier</code> containing wine producers, estates, and international distributors, complete with business contact phones, corporate emails, and winery addresses.
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Primary Key: <code>supplier_id</code></li>
+                                <li>1-to-Many relationship with <code>wine</code></li>
+                                <li>Referential constraint prevents orphan wines</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/suppliers" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/suppliers/export/csv" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 5: INVENTORY DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #198754 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box icon-success">
+                                    <i class="bi bi-box-seam-fill"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">INVENTORY DATA</h5>
+                                    <span class="badge bg-success-subtle text-success border">Stock Levels</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>inventory</code> tracking live bottle counts, reorder thresholds, automated last-updated timestamps, and dynamic stock status flags (In Stock, Low Stock, Out of Stock).
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Primary Key: <code>inventory_id</code></li>
+                                <li>Unique Foreign Key: <code>wine_id</code> (1-to-1)</li>
+                                <li>Auto-updated via sales order transactions</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/inventory" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/inventory/export/csv" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 6: ORDER DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #6f42c1 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box" style="background: rgba(111, 66, 193, 0.12); color: #6f42c1;">
+                                    <i class="bi bi-receipt"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">ORDER DATA</h5>
+                                    <span class="badge bg-purple-subtle text-purple border" style="background-color: #f3e8fd; color: #6f42c1;">100 Orders</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>orders</code> capturing customer order transactions, order dates, total amounts, and payment statuses (Paid, Pending, Cancelled).
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Primary Key: <code>order_id</code></li>
+                                <li>Foreign Key: <code>customer_id</code></li>
+                                <li>Indexed on <code>order_date</code></li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/orders" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/orders/export/csv" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- CARD 7: ORDER DETAILS DATA -->
+                <div class="col-lg-6 col-xl-4">
+                    <div class="card-custom h-100 d-flex flex-column justify-content-between border-top border-4" style="border-top-color: #fd7e14 !important;">
+                        <div>
+                            <div class="d-flex align-items-center gap-3 mb-3">
+                                <div class="metric-icon-box" style="background: rgba(253, 126, 20, 0.12); color: #fd7e14;">
+                                    <i class="bi bi-list-check"></i>
+                                </div>
+                                <div>
+                                    <h5 class="fw-bold mb-1" style="color: var(--wine-dark);">ORDER DETAILS DATA</h5>
+                                    <span class="badge bg-warning-subtle text-dark border">260+ Items</span>
+                                </div>
+                            </div>
+                            <p class="text-muted small">
+                                Table <code>order_details</code> representing the bridge table between Orders and Wines. Implements a MySQL <code>STORED GENERATED</code> subtotal column.
+                            </p>
+                            <ul class="small text-muted ps-3 mb-3">
+                                <li>Foreign Keys: <code>order_id</code>, <code>wine_id</code></li>
+                                <li>Generated Column: <code>subtotal</code></li>
+                                <li>Cascades on order deletion</li>
+                            </ul>
+                        </div>
+                        <div class="d-flex gap-2">
+                            <a href="/api/sql/order-details" class="btn btn-wine btn-sm flex-fill">
+                                <i class="bi bi-filetype-sql me-1"></i> Download SQL
+                            </a>
+                            <a href="/api/order-details/export" class="btn btn-gold btn-sm flex-fill">
+                                <i class="bi bi-filetype-csv me-1"></i> Download CSV
+                            </a>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- MySQL Instructions Section -->
+            <div class="card-custom">
+                <div class="card-header-flex">
+                    <div>
+                        <h4 class="fw-bold mb-1" style="color: var(--wine-dark);"><i class="bi bi-terminal me-2"></i>MySQL Workbench & CLI Import Instructions</h4>
+                        <p class="text-muted small mb-0">Follow these standard commands to import the complete project database into MySQL 8.x</p>
+                    </div>
+                </div>
+                <div class="row g-3 mt-1">
+                    <div class="col-lg-6">
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-windows me-1"></i>Command Prompt / PowerShell:</h6>
+                            <pre class="bg-dark text-white p-3 rounded small mb-2" style="font-family: Consolas, monospace;"><code># 1. Log in to MySQL CLI
+mysql -u root -p
+
+# 2. Source the complete database script
+SOURCE C:/path/to/wines-management-system/database/complete_database.sql;</code></pre>
+                            <small class="text-muted"><i class="bi bi-info-circle me-1"></i>Always use forward slashes (<code>/</code>) in the MySQL SOURCE file path.</small>
+                        </div>
+                    </div>
+                    <div class="col-lg-6">
+                        <div class="p-3 bg-light rounded border">
+                            <h6 class="fw-bold text-dark mb-2"><i class="bi bi-laptop me-1"></i>MySQL Workbench Graphical Tool:</h6>
+                            <ol class="small text-muted ps-3 mb-2">
+                                <li>Open <strong>MySQL Workbench</strong> and connect to your local instance.</li>
+                                <li>Navigate to <strong>File &rarr; Open SQL Script...</strong> (or press <kbd>Ctrl+Shift+O</kbd>).</li>
+                                <li>Select <code>database/complete_database.sql</code> from this project folder.</li>
+                                <li>Click the <strong>Execute (Lightning Bolt)</strong> button to initialize all tables, seed data, views, and triggers.</li>
+                            </ol>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Entity Relationship Diagram - Wines Management System</title>
+    <!-- Bootstrap 5 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Bootstrap Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Mermaid.js for visual ER diagram rendering -->
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Navigation -->
+    <nav class="sidebar" id="sidebar">
+        <a href="index.html" class="sidebar-brand">
+            <div class="brand-icon">🍷</div>
+            <div>
+                <div class="brand-title">Wines MS</div>
+                <div class="brand-subtitle">DBMS Enterprise</div>
+            </div>
+        </a>
+
+        <ul class="sidebar-nav">
+            <li class="nav-label">Core Operations</li>
+            <li class="nav-item">
+                <a href="index.html" class="nav-link">
+                    <i class="bi bi-speedometer2"></i> Dashboard
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="wines.html" class="nav-link">
+                    <i class="bi bi-cup-straw"></i> Wines Catalog
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="customers.html" class="nav-link">
+                    <i class="bi bi-people-fill"></i> Customers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="suppliers.html" class="nav-link">
+                    <i class="bi bi-truck"></i> Suppliers
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="inventory.html" class="nav-link">
+                    <i class="bi bi-box-seam-fill"></i> Inventory Stock
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="orders.html" class="nav-link">
+                    <i class="bi bi-receipt"></i> Sales Orders
+                </a>
+            </li>
+
+            <li class="nav-label">Analytics & Database</li>
+            <li class="nav-item">
+                <a href="reports.html" class="nav-link">
+                    <i class="bi bi-graph-up-arrow"></i> Sales Reports
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="export.html" class="nav-link">
+                    <i class="bi bi-database-down"></i> Database Export
+                </a>
+            </li>
+            <li class="nav-item">
+                <a href="erd.html" class="nav-link active">
+                    <i class="bi bi-diagram-3"></i> ER Diagram
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <div>
+                <span class="status-indicator"></span>
+                <span>MySQL Connected</span>
+            </div>
+            <span class="badge bg-dark">v1.0</span>
+        </div>
+    </nav>
+
+    <!-- Main Wrapper -->
+    <div class="main-wrapper">
+        <header class="top-navbar">
+            <div class="d-flex align-items-center gap-3">
+                <button class="mobile-nav-toggle" id="mobileNavToggle">
+                    <i class="bi bi-list"></i>
+                </button>
+                <div class="page-title-area">
+                    <h1>Entity Relationship (ER) Model & Schema Architecture</h1>
+                    <p>Formal DBMS Relational Diagram, Primary/Foreign Key Mappings, and 3NF Normalization Analysis</p>
+                </div>
+            </div>
+        </header>
+
+        <main class="content-body">
+            <!-- Mermaid Visual Diagram Card -->
+            <div class="card-custom mb-4">
+                <div class="card-header-flex">
+                    <div>
+                        <h3>Relational Schema Diagram</h3>
+                        <p class="text-muted small mb-0">Dynamic Crow's Foot ER Diagram rendered via Mermaid.js</p>
+                    </div>
+                </div>
+
+                <div class="p-4 bg-white border rounded text-center overflow-auto">
+                    <div class="mermaid">
+erDiagram
+    SUPPLIER ||--o{ WINE : "supplies (1:M)"
+    CUSTOMER ||--o{ ORDERS : "places (1:M)"
+    ORDERS ||--|{ ORDER_DETAILS : "contains (1:M)"
+    WINE ||--o{ ORDER_DETAILS : "ordered_in (1:M)"
+    WINE ||--|| INVENTORY : "tracked_by (1:1/1:M)"
+
+    SUPPLIER {
+        int supplier_id PK
+        string supplier_name
+        string phone
+        string email
+        string address
+    }
+
+    WINE {
+        int wine_id PK
+        string wine_name
+        string category
+        decimal price
+        int quantity
+        int supplier_id FK
+    }
+
+    CUSTOMER {
+        int customer_id PK
+        string customer_name
+        string phone
+        string email
+        string address
+    }
+
+    ORDERS {
+        int order_id PK
+        int customer_id FK
+        datetime order_date
+        decimal total_amount
+        string payment_status
+    }
+
+    ORDER_DETAILS {
+        int order_detail_id PK
+        int order_id FK
+        int wine_id FK
+        int quantity
+        decimal unit_price
+    }
+
+    INVENTORY {
+        int inventory_id PK
+        int wine_id FK
+        int stock_quantity
+        int reorder_level
+        timestamp last_updated
+    }
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cardinality & Relationships Breakdown -->
+            <div class="row g-4 mb-4">
+                <div class="col-lg-6">
+                    <div class="card-custom h-100">
+                        <h4 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-link-45deg me-1"></i>Relational Cardinalities</h4>
+                        <table class="table-custom">
+                            <thead>
+                                <tr>
+                                    <th>Relationship</th>
+                                    <th>Cardinality</th>
+                                    <th>Type</th>
+                                    <th>Integrity Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td><strong>SUPPLIER &rarr; WINE</strong></td>
+                                    <td>1 : M (One to Many)</td>
+                                    <td>Non-Identifying</td>
+                                    <td><code>ON DELETE SET NULL</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>CUSTOMER &rarr; ORDERS</strong></td>
+                                    <td>1 : M (One to Many)</td>
+                                    <td>Identifying Parent</td>
+                                    <td><code>ON DELETE RESTRICT</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>ORDERS &rarr; ORDER_DETAILS</strong></td>
+                                    <td>1 : M (One to Many)</td>
+                                    <td>Composition</td>
+                                    <td><code>ON DELETE CASCADE</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WINE &rarr; ORDER_DETAILS</strong></td>
+                                    <td>1 : M (One to Many)</td>
+                                    <td>Reference</td>
+                                    <td><code>ON DELETE RESTRICT</code></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>WINE &rarr; INVENTORY</strong></td>
+                                    <td>1 : 1 / 1 : M</td>
+                                    <td>Tracking Extension</td>
+                                    <td><code>ON DELETE CASCADE</code></td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="card-custom h-100">
+                        <h4 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-check2-circle me-1"></i>Normalization Verification (3NF)</h4>
+                        
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-success mb-1">1. First Normal Form (1NF)</h6>
+                            <p class="small text-muted mb-0">Every column stores atomic, single-valued attributes. No repeating groups or arrays. Every table has a distinct Primary Key.</p>
+                        </div>
+
+                        <div class="mb-3">
+                            <h6 class="fw-bold text-success mb-1">2. Second Normal Form (2NF)</h6>
+                            <p class="small text-muted mb-0">Satisfies 1NF. All non-key attributes are fully functionally dependent on the entire primary key, eliminating partial dependencies.</p>
+                        </div>
+
+                        <div>
+                            <h6 class="fw-bold text-success mb-1">3. Third Normal Form (3NF)</h6>
+                            <p class="small text-muted mb-0">Satisfies 2NF. No transitive functional dependencies exist: non-key attributes depend exclusively on primary keys. For instance, customer contact data is not duplicated in <code>orders</code>.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Academic Viva & Project Defense Guide -->
+            <div class="card-custom">
+                <h4 class="fw-bold mb-3" style="color: var(--wine-dark);"><i class="bi bi-mortarboard-fill me-2"></i>Academic Project Viva & Evaluation Notes</h4>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light">
+                            <h6 class="fw-bold">Transactions & ACID</h6>
+                            <p class="small text-muted mb-0">Order placement operates inside a transactional boundary. Stock checks, line item insertion, and inventory deductions succeed atomically or rollback completely.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light">
+                            <h6 class="fw-bold">Triggers & DB Constraints</h6>
+                            <p class="small text-muted mb-0">Database-level business rules enforce stock availability checks (<code>SIGNAL SQLSTATE '45000'</code>) and automatic stock decrements directly within MySQL.</p>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="p-3 border rounded bg-light">
+                            <h6 class="fw-bold">Indexes & Optimization</h6>
+                            <p class="small text-muted mb-0">B-tree indexes on foreign keys, categories, prices, and order dates provide sub-millisecond query execution on analytical views and filters.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bootstrap 5 Bundle JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/app.js"></script>
+    <script>
+        mermaid.initialize({
+            startOnLoad: true,
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#FDF2F4',
+                primaryTextColor: '#3E0C15',
+                primaryBorderColor: '#6A1B29',
+                lineColor: '#6A1B29',
+                secondaryColor: '#FFF9E6',
+                tertiaryColor: '#FFFFFF'
+            }
+        });
+    </script>
+</body>
+</html>
