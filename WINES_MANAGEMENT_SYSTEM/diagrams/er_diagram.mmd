@@ -1,0 +1,58 @@
+erDiagram
+
+    SUPPLIER {
+        int supplier_id PK
+        varchar supplier_name
+        varchar phone
+        varchar email
+        varchar address
+    }
+
+    WINE {
+        int wine_id PK
+        varchar wine_name
+        varchar category
+        decimal price
+        int quantity
+        int supplier_id FK
+        text description
+    }
+
+    CUSTOMER {
+        int customer_id PK
+        varchar customer_name
+        varchar phone
+        varchar email
+        varchar address
+    }
+
+    ORDERS {
+        int order_id PK
+        int customer_id FK
+        datetime order_date
+        decimal total_amount
+        varchar payment_status
+    }
+
+    ORDER_DETAILS {
+        int order_detail_id PK
+        int order_id FK
+        int wine_id FK
+        int quantity
+        decimal unit_price
+        decimal subtotal
+    }
+
+    INVENTORY {
+        int inventory_id PK
+        int wine_id FK
+        int stock_quantity
+        int reorder_level
+        timestamp last_updated
+    }
+
+    SUPPLIER ||--o{ WINE : supplies
+    CUSTOMER ||--o{ ORDERS : places
+    ORDERS ||--|{ ORDER_DETAILS : contains
+    WINE ||--o{ ORDER_DETAILS : included_in
+    WINE ||--|| INVENTORY : has

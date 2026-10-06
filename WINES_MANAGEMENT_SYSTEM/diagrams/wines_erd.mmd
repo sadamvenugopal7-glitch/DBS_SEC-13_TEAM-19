@@ -1,0 +1,60 @@
+erDiagram
+    SUPPLIER ||--o{ WINE : "supplies (1:M)"
+    CUSTOMER ||--o{ ORDERS : "places (1:M)"
+    ORDERS ||--|{ ORDER_DETAILS : "contains (1:M)"
+    WINE ||--o{ ORDER_DETAILS : "ordered_in (1:M)"
+    WINE ||--|| INVENTORY : "tracked_by (1:1/1:M)"
+
+    SUPPLIER {
+        int supplier_id PK "AUTO_INCREMENT"
+        string supplier_name "NOT NULL"
+        string phone "VARCHAR(20)"
+        string email "VARCHAR(100)"
+        string address "VARCHAR(255)"
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    WINE {
+        int wine_id PK "AUTO_INCREMENT"
+        string wine_name "NOT NULL"
+        string category "NOT NULL (Red, White, etc)"
+        decimal price "NOT NULL (CHECK > 0)"
+        int quantity "DEFAULT 0 (CHECK >= 0)"
+        int supplier_id FK "REFERENCES SUPPLIER"
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    CUSTOMER {
+        int customer_id PK "AUTO_INCREMENT"
+        string customer_name "NOT NULL"
+        string phone "VARCHAR(20)"
+        string email "VARCHAR(100)"
+        string address "VARCHAR(255)"
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    ORDERS {
+        int order_id PK "AUTO_INCREMENT"
+        int customer_id FK "REFERENCES CUSTOMER"
+        datetime order_date "DEFAULT CURRENT_TIMESTAMP"
+        decimal total_amount "DECIMAL(10,2)"
+        string payment_status "VARCHAR(30) (Paid/Pending)"
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    ORDER_DETAILS {
+        int order_detail_id PK "AUTO_INCREMENT"
+        int order_id FK "REFERENCES ORDERS (CASCADE)"
+        int wine_id FK "REFERENCES WINE (RESTRICT)"
+        int quantity "NOT NULL (CHECK > 0)"
+        decimal unit_price "NOT NULL (DECIMAL 10,2)"
+        timestamp created_at "DEFAULT CURRENT_TIMESTAMP"
+    }
+
+    INVENTORY {
+        int inventory_id PK "AUTO_INCREMENT"
+        int wine_id FK "REFERENCES WINE (CASCADE)"
+        int stock_quantity "DEFAULT 0 (CHECK >= 0)"
+        int reorder_level "DEFAULT 10 (CHECK >= 0)"
+        timestamp last_updated "ON UPDATE CURRENT_TIMESTAMP"
+    }

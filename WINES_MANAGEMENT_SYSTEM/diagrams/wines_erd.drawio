@@ -1,0 +1,66 @@
+<mxfile host="app.diagrams.net" modified="2026-09-28T08:35:00.000Z" agent="Antigravity DBMS" version="24.0.0" type="device">
+  <diagram id="WinesERD" name="Wines Management System ERD">
+    <mxGraphModel dx="1200" dy="800" grid="1" gridSize="10" guides="1" tooltips="1" connect="1" arrows="1" fold="1" page="1" pageScale="1" pageWidth="1169" pageHeight="827" background="#ffffff" math="0" shadow="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        
+        <!-- SUPPLIER Entity -->
+        <mxCell id="supplier" value="&lt;b&gt;SUPPLIER&lt;/b&gt;&lt;hr/&gt;PK supplier_id (INT)&lt;br/&gt;supplier_name (VARCHAR 100)&lt;br/&gt;phone (VARCHAR 20)&lt;br/&gt;email (VARCHAR 100)&lt;br/&gt;address (VARCHAR 255)&lt;br/&gt;created_at (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#6a1b29;strokeColor=#4a0e17;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="60" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- WINE Entity -->
+        <mxCell id="wine" value="&lt;b&gt;WINE&lt;/b&gt;&lt;hr/&gt;PK wine_id (INT)&lt;br/&gt;wine_name (VARCHAR 100)&lt;br/&gt;category (VARCHAR 50)&lt;br/&gt;price (DECIMAL 10,2)&lt;br/&gt;quantity (INT)&lt;br/&gt;FK supplier_id (INT)&lt;br/&gt;created_at (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#800020;strokeColor=#560015;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="320" width="220" height="160" as="geometry" />
+        </mxCell>
+
+        <!-- INVENTORY Entity -->
+        <mxCell id="inventory" value="&lt;b&gt;INVENTORY&lt;/b&gt;&lt;hr/&gt;PK inventory_id (INT)&lt;br/&gt;FK wine_id (INT)&lt;br/&gt;stock_quantity (INT)&lt;br/&gt;reorder_level (INT)&lt;br/&gt;last_updated (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#4a154b;strokeColor=#310e31;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="80" y="580" width="220" height="140" as="geometry" />
+        </mxCell>
+
+        <!-- CUSTOMER Entity -->
+        <mxCell id="customer" value="&lt;b&gt;CUSTOMER&lt;/b&gt;&lt;hr/&gt;PK customer_id (INT)&lt;br/&gt;customer_name (VARCHAR 100)&lt;br/&gt;phone (VARCHAR 20)&lt;br/&gt;email (VARCHAR 100)&lt;br/&gt;address (VARCHAR 255)&lt;br/&gt;created_at (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#1e3d59;strokeColor=#122435;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="640" y="60" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- ORDERS Entity -->
+        <mxCell id="orders" value="&lt;b&gt;ORDERS&lt;/b&gt;&lt;hr/&gt;PK order_id (INT)&lt;br/&gt;FK customer_id (INT)&lt;br/&gt;order_date (DATETIME)&lt;br/&gt;total_amount (DECIMAL 10,2)&lt;br/&gt;payment_status (VARCHAR 30)&lt;br/&gt;created_at (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#2b580c;strokeColor=#1c3b07;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="640" y="320" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- ORDER_DETAILS Entity -->
+        <mxCell id="order_details" value="&lt;b&gt;ORDER_DETAILS&lt;/b&gt;&lt;hr/&gt;PK order_detail_id (INT)&lt;br/&gt;FK order_id (INT)&lt;br/&gt;FK wine_id (INT)&lt;br/&gt;quantity (INT)&lt;br/&gt;unit_price (DECIMAL 10,2)&lt;br/&gt;created_at (TIMESTAMP)" style="swimlane;fontStyle=0;childLayout=stackLayout;horizontal=1;startSize=26;fillColor=#d48806;strokeColor=#ad6800;fontColor=#ffffff;horizontalStack=0;resizeParent=1;resizeParentMax=0;resizeLast=0;collapsible=1;marginBottom=0;align=center;fontSize=12;" vertex="1" parent="1">
+          <mxGeometry x="360" y="320" width="220" height="150" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIP: SUPPLIER -> WINE (1:M) -->
+        <mxCell id="rel_sup_wine" value="1 : M" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;strokeColor=#4a0e17;fontSize=13;fontStyle=1;" edge="1" parent="1" source="supplier" target="wine">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIP: WINE -> INVENTORY (1:1 / 1:M) -->
+        <mxCell id="rel_wine_inv" value="1 : M" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;strokeColor=#800020;fontSize=13;fontStyle=1;" edge="1" parent="1" source="wine" target="inventory">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIP: CUSTOMER -> ORDERS (1:M) -->
+        <mxCell id="rel_cust_ord" value="1 : M" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0.5;exitY=1;entryX=0.5;entryY=0;strokeWidth=2;strokeColor=#1e3d59;fontSize=13;fontStyle=1;" edge="1" parent="1" source="customer" target="orders">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIP: ORDERS -> ORDER_DETAILS (1:M) -->
+        <mxCell id="rel_ord_det" value="1 : M" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=0;exitY=0.5;entryX=1;entryY=0.5;strokeWidth=2;strokeColor=#2b580c;fontSize=13;fontStyle=1;" edge="1" parent="1" source="orders" target="order_details">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+        <!-- RELATIONSHIP: WINE -> ORDER_DETAILS (1:M) -->
+        <mxCell id="rel_wine_det" value="1 : M" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;exitX=1;exitY=0.5;entryX=0;entryY=0.5;strokeWidth=2;strokeColor=#800020;fontSize=13;fontStyle=1;" edge="1" parent="1" source="wine" target="order_details">
+          <mxGeometry relative="1" as="geometry" />
+        </mxCell>
+
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>
