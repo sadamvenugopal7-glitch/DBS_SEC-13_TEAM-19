@@ -1,0 +1,9 @@
+# 
+
+{
+  "database": "wines_management_db",
+  "engine": "MySQL 8.x",
+  "project": "WINES MANAGEMENT SYSTEM",
+  "status": "healthy",
+  "team": "Team 19, Section 3"
+}
