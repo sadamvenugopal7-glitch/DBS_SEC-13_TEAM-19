@@ -1,0 +1,51 @@
+wine_id,wine_name,category,price,quantity,supplier_id,description
+1,Sula Rasa Cabernet Sauvignon,Red Wine,1850.0,45,1,Complex full-bodied red aged in French oak barrels with hints of dark cocoa and berries.
+2,Sula Dindori Reserve Shiraz,Red Wine,1350.0,60,1,Lush and aromatic with aromas of crushed black pepper and ripe blackberries.
+3,Sula Sauvignon Blanc,White Wine,795.0,80,1,"Crisp dry white with herbaceous notes, green peppers, and refreshing citrus."
+4,Sula The Source Grenache Rose,Rose Wine,1050.0,8,1,Bright coral blush wine with delicate aromas of citrus and fresh strawberries.
+5,Sula Brut Tropicale Sparkling,Sparkling Wine,1450.0,40,1,Method traditional sparkling rosé with refreshing fruit character.
+6,Grover Zampa La Reserve Red,Red Wine,1200.0,55,2,Iconic blend of Cabernet Sauvignon and Shiraz with chocolate and vanilla notes.
+7,Grover Zampa Chene Grand Reserve,Red Wine,2250.0,5,2,Aged for 15 months in French oak barrels; concentrated dark fruit and spice.
+8,Grover Vijay Amritraj Reserve White,White Wine,1495.0,35,2,"Viognier blend with peach, honey, and floral jasmine aromas."
+9,Grover Soiree Brut Sparkling,Sparkling Wine,1350.0,6,2,Creamy texture with fine perlage and aromas of brioche and green apple.
+10,Fratelli Sette Flagship Red,Red Wine,2100.0,40,3,Super-Tuscan style blend of Sangiovese and Cabernet Franc with velvety tannins.
+11,Fratelli MS Red Blend,Red Wine,1650.0,50,3,Created with master sommelier Steven Spurrier; rich plum and cedar notes.
+12,Fratelli Gran Cuvee Brut,Sparkling Wine,1500.0,30,3,Zero dosage traditional method sparkling wine with crisp acidity.
+13,Fratelli Sangiovese Bianco,White Wine,950.0,65,3,Rare white wine vinified from red Sangiovese grapes with crisp pear aroma.
+14,York Arros Reserve Red,Red Wine,1400.0,35,4,Flagship blend of Shiraz and Cabernet Sauvignon aged in American and French oak.
+15,York Sparkling Rose,Sparkling Wine,1250.0,7,4,100% Chenin Blanc & Shiraz sparkling wine made in traditional méthode champenoise.
+16,York All-Rounder Sauvignon Blanc,White Wine,750.0,70,4,"Tropical fruit flavors of passionfruit, guava, and flinty minerality."
+17,KRSMA Cabernet Sauvignon Reserve,Red Wine,2400.0,4,5,"Cult wine from Hampi Hills with cassis, dark plum, and tobacco complexity."
+18,KRSMA Sangiovese Special Selection,Red Wine,1800.0,20,5,Bright cherry fruit with high natural acidity and subtle sweet spices.
+19,KRSMA Sauvignon Blanc Single Vineyard,White Wine,1250.0,30,5,"Flinty, elegant, and crisp with citrus peel and gooseberry accents."
+20,Vallonne Malbec Reserve,Red Wine,1650.0,5,6,"India's first single-varietal Malbec with blackberry, violet, and dark oak flavors."
+21,Vallonne Vin de Passerillage Dessert,Dessert Wine,1950.0,3,6,Naturally sweet dessert wine with dried apricot and honeyed notes.
+22,Vallonne Rose de Cabernet,Rose Wine,920.0,40,6,Dry rosé from Cabernet Sauvignon grapes with raspberry and rose petal nose.
+23,Soma Shiraz Reserve Oak Aged,Red Wine,1150.0,45,7,"Smooth, medium-bodied red wine with soft tannins and red currant flavors."
+24,Soma Chenin Blanc Sec,White Wine,680.0,75,7,"Off-dry white with refreshing notes of green apples, pineapple, and citrus."
+25,Chandon Brut Vintage Method,Sparkling Wine,1750.0,50,8,"Classic sparkling blend of Chenin Blanc, Chardonnay, and Pinot Noir."
+26,Chandon Rose Sparkling Pinot Noir,Sparkling Wine,1900.0,35,8,"Elegant salmon pink sparkler with cherry, strawberry, and brioche aromas."
+27,Charosa Tempranillo Reserve,Red Wine,1700.0,28,9,Warm coconut and vanilla bouquet paired with rich dark berry concentration.
+28,Charosa Selections Cabernet Shiraz,Red Wine,950.0,60,9,Balanced ruby red blend with ripe berries and subtle peppery spice.
+29,Charosa Voignier White Wine,White Wine,850.0,40,9,"Exotic aromatics of apricot, honeysuckle, and almond flower."
+30,Reveilo Reserve Syrah Oak Aged,Red Wine,1550.0,22,10,Aged in French oak for 12 months; powerful red berry fruit and peppery finish.
+31,Reveilo Nero d Avola Reserve,Red Wine,1450.0,26,10,Unique Sicilian grape grown in Nashik with sweet cherries and balsamic notes.
+32,Reveilo Grillo Estate White,White Wine,820.0,50,10,Fresh Mediterranean varietal with citrus blossom and crisp acidity.
+33,Four Seasons Barrique Reserve Shiraz,Red Wine,1300.0,38,11,Aged in new oak barrels; full-bodied with notes of ripe plums and dark chocolate.
+34,Four Seasons Viognier Barrel Select,White Wine,900.0,42,11,"Aromatic white offering peach, lychee, and fresh floral notes."
+35,Good Earth Basso Cabernet,Red Wine,1100.0,30,12,Earthy and savoury Cabernet Sauvignon with structured tannins.
+36,Good Earth Antaraa Shiraz Cabernet,Red Wine,980.0,35,12,Harmonious blend with soft tannins and red plum flavors.
+37,Big Banyan Merlot Reserve,Red Wine,990.0,55,13,"Plush and round red with sweet red fruit, cocoa, and gentle vanilla oak."
+38,Big Banyan Chardonnay Dry White,White Wine,890.0,48,13,"Lightly wooded white with green apple, butterscotch, and citrus finish."
+39,Big Banyan Bellissima Late Harvest,Dessert Wine,1250.0,6,13,Luscious sweet wine made from late-harvest Muscat grapes.
+40,Chateau Indage Chantilli Cabernet,Red Wine,780.0,65,14,Historic Indian table wine with soft red fruit and easy-drinking style.
+41,Chateau Indage Marquise de Pompadour,Sparkling Wine,1200.0,32,14,Crisp sparkling wine with delicate bubbles and citrus peel notes.
+42,Renaissance Pinot Noir Estate,Red Wine,1150.0,28,15,"Light-bodied ruby red with cranberry, cherry, and forest floor complexity."
+43,Mokssh Sauvignon Blanc Classic,White Wine,720.0,60,16,"Fresh grassy bouquet with grapefruit, lime, and mineral backbone."
+44,Deccan Plateau Heritage Port Wine,Fortified Wine,550.0,90,17,"Sweet fortified wine with rich caramel, raisin, and dried fruit flavors."
+45,Aarna Royal Shiraz Reserve,Red Wine,1250.0,40,18,Robust Deccan Shiraz with spiced blackberry and toasted oak aromas.
+46,Nashik Valley Zinfandel Rose,Rose Wine,760.0,52,19,Semi-sweet refreshing rosé with bright strawberry and watermelon flavors.
+47,Heritage Amber Sweet Dessert,Dessert Wine,690.0,35,20,Golden amber dessert wine with candied orange peel and floral honey.
+48,Chianti Classico DOCG Riserva,Red Wine,3800.0,2,21,"Imported Italian Tuscan red with tart cherry, leather, and dried oregano."
+49,Bordeaux Medoc Chateau Blend,Red Wine,4200.0,3,22,Classic French Left Bank Cabernet-Merlot with cassis and graphite notes.
+50,Goa Portuguese Royal Fortified Port,Fortified Wine,620.0,85,23,Traditional Goan fortified wine with sweet raisin and warm spice notes.
